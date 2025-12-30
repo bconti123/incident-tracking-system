@@ -3,12 +3,13 @@ services:
     image: postgres:16
     container_name: incident-tracking-db
     restart: always
-    ports:
-    - "5433:5432"
+
     environment:
       POSTGRES_USER: incident_user
       POSTGRES_PASSWORD: securepassword
       POSTGRES_DB: incident_tracking
+    ports:
+      - "5432:5432"
     volumes:
       - incident_tracking_pgdata:/var/lib/postgresql/data
 

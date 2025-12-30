@@ -1,14 +1,204 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
-  provider = "prisma-client"
-  output   = "../app/generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
+}
+
+enum Role {
+  ADMIN
+  SUPPORT
+  USER
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  BLOCKED
+  RESOLVED
+}
+
+enum AuditAction {
+  TICKET_CREATED
+  TICKET_UPDATED
+  STATUS_CHANGED
+  COMMENT_ADDED
+  COMMENT_EDITED
+  COMMENT_DELETED
+  ASSIGNEE_CHANGED
+  PRIORITY_CHANGED
+  ERROR_REF_ADDED
+  ERROR_REF_REMOVED
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+model User {
+  id    String  @id @default(cuid())
+  email String  @unique
+  name  String?
+  role  Role    @default(USER)
+
+  ticketsCreated  Ticket[]        @relation("TicketCreatedBy")
+  ticketsAssigned Ticket[]        @relation("TicketAssignedTo")
+  comments        TicketComment[]
+  audits          AuditLog[]
+
+  // add these:
+  statusChanges  TicketStatusHistory[]
+  errorRefsAdded TicketErrorRef[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([role])
+}
+
+model Ticket {
+  id          String       @id @default(cuid())
+  title       String
+  description String?
+  status      TicketStatus @default(OPEN)
+  priority    Priority     @default(MEDIUM)
+
+  // relationships
+  createdById String
+  createdBy   User   @relation("TicketCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
+
+  assignedToId String?
+  assignedTo   User?   @relation("TicketAssignedTo", fields: [assignedToId], references: [id], onDelete: SetNull)
+
+  // error references (many-to-many through join model)
+  errorRefs TicketErrorRef[]
+
+  // history & collaboration
+  comments      TicketComment[]
+  statusHistory TicketStatusHistory[]
+  audits        AuditLog[]
+
+  // optional metadata
+  externalRef String? // e.g., "INC-000123" if you want friendly ids later
+  closedAt    DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status, priority])
+  @@index([createdById])
+  @@index([assignedToId])
+  @@index([createdAt])
+}
+
+model TicketComment {
+  id       String @id @default(cuid())
+  ticketId String
+  ticket   Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Restrict)
+
+  body String
+
+  // soft-edit support (optional but nice)
+  editedAt DateTime?
+
+  // for simple moderation / “deleted comment” behavior
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([ticketId, createdAt])
+  @@index([authorId])
+}
+
+model TicketStatusHistory {
+  id       String @id @default(cuid())
+  ticketId String
+  ticket   Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  fromStatus TicketStatus?
+  toStatus   TicketStatus
+
+  changedById String
+  changedBy   User   @relation(fields: [changedById], references: [id], onDelete: Restrict)
+
+  reason    String? // optional: why it was blocked/resolved
+  createdAt DateTime @default(now())
+
+  @@index([ticketId, createdAt])
+  @@index([changedById])
+}
+
+model ErrorCode {
+  id           String  @id @default(cuid())
+  code         Int // 500, 403, etc.
+  label        String // "Internal Server Error"
+  description  String? // what it means in your org
+  commonCauses String? // short notes
+  suggestedFix String? // playbook hint
+
+  // tickets referencing this error code
+  ticketRefs TicketErrorRef[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([code])
+  @@index([code])
+}
+
+model TicketErrorRef {
+  id String @id @default(cuid())
+
+  ticketId String
+  ticket   Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  errorCodeId String
+  errorCode   ErrorCode @relation(fields: [errorCodeId], references: [id], onDelete: Restrict)
+
+  addedById String
+  addedBy   User   @relation(fields: [addedById], references: [id], onDelete: Restrict)
+
+  note      String? // optional: “happens when auth token expires”
+  createdAt DateTime @default(now())
+
+  @@unique([ticketId, errorCodeId])
+  @@index([ticketId])
+  @@index([errorCodeId])
+}
+
+model AuditLog {
+  id String @id @default(cuid())
+
+  action  AuditAction
+  actorId String
+  actor   User        @relation(fields: [actorId], references: [id], onDelete: Restrict)
+
+  ticketId String?
+  ticket   Ticket? @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  // "what changed" – keep it flexible
+  entityType String // "Ticket", "TicketComment", etc.
+  entityId   String // id of that entity
+
+  // before/after snapshots (JSON keeps it simple)
+  beforeJson Json?
+  afterJson  Json?
+
+  ipAddress String?
+  userAgent String?
+
+  createdAt DateTime @default(now())
+
+  @@index([ticketId, createdAt])
+  @@index([actorId, createdAt])
+  @@index([action, createdAt])
 }
