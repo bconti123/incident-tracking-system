@@ -2,8 +2,9 @@ import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
 import { prisma } from "@/lib/prisma";
+import type { NextAuthOptions } from "next-auth";
 
-export const authOptions = {
+export const authOptions: NextAuthOptions = {
   session: { strategy: "jwt" },
   providers: [
     Credentials({
@@ -53,7 +54,7 @@ export const authOptions = {
   pages: {
     signIn: "/login",
   },
-} satisfies any;
+};
 
 const handler = NextAuth(authOptions);
 export { handler as GET, handler as POST };
