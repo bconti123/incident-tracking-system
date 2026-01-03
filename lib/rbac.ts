@@ -1,38 +1,13 @@
 export type Role = "ADMIN" | "SUPPORT" | "USER";
 
-export const permissions = {
-  ADMIN: {
-    manageUsers: true,
-    viewAllTickets: true,
-    updateTicketStatus: true,
-    assignTickets: true,
-    commentAny: true,
-    createTicket: true,
-    viewOwnTickets: true,
-    commentOwn: true,
-  },
-  SUPPORT: {
-    manageUsers: false,
-    viewAllTickets: true,
-    updateTicketStatus: true,
-    assignTickets: true,
-    commentAny: true,
-    createTicket: false,     // optional — set true if you want Support to create too
-    viewOwnTickets: true,
-    commentOwn: true,
-  },
-  USER: {
-    manageUsers: false,
-    viewAllTickets: false,
-    updateTicketStatus: false,
-    assignTickets: false,
-    commentAny: false,
-    createTicket: true,
-    viewOwnTickets: true,
-    commentOwn: true,
-  },
-} as const;
+export const canViewAllTickets = (role: Role) => {
+  return role === "ADMIN" || role === "SUPPORT";
+}
 
-export function can(role: Role, action: keyof typeof permissions.ADMIN) {
-  return permissions[role][action] === true;
+export const canCreateTicket = (role: Role) => {
+  return role === "ADMIN" || role === "USER"; // per your Day 2 rules
+}
+
+export const canUpdateTicket = (role: Role) =>{
+  return role === "ADMIN" || role === "SUPPORT";
 }

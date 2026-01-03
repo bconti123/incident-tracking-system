@@ -40,20 +40,20 @@ enum Priority {
 }
 
 model User {
-  id    String  @id @default(cuid())
-  email String  @unique
-  name  String?
+  id           String  @id @default(cuid())
+  email        String  @unique
+  name         String?
   passwordHash String
-  role  Role    @default(USER)
+  role         Role    @default(USER)
 
   ticketsCreated  Ticket[]        @relation("TicketCreatedBy")
   ticketsAssigned Ticket[]        @relation("TicketAssignedTo")
   comments        TicketComment[]
-  audits          AuditLog[]
+  audits          AuditLog[]      @relation("AuditActor")
 
   // add these:
-  statusChanges  TicketStatusHistory[]
-  errorRefsAdded TicketErrorRef[]
+  statusChanges  TicketStatusHistory[] @relation("StatusChangedBy")
+  errorRefsAdded TicketErrorRef[]      @relation("ErrorRefAddedBy")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -69,8 +69,8 @@ model Ticket {
   priority    Priority     @default(MEDIUM)
 
   // relationships
-  createdById String
-  createdBy   User   @relation("TicketCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
+  ownerId String
+  owner   User   @relation("TicketCreatedBy", fields: [ownerId], references: [id], onDelete: Restrict)
 
   assignedToId String?
   assignedTo   User?   @relation("TicketAssignedTo", fields: [assignedToId], references: [id], onDelete: SetNull)
@@ -91,7 +91,7 @@ model Ticket {
   updatedAt DateTime @updatedAt
 
   @@index([status, priority])
-  @@index([createdById])
+  @@index([ownerId])
   @@index([assignedToId])
   @@index([createdAt])
 }
@@ -129,7 +129,7 @@ model TicketStatusHistory {
   toStatus   TicketStatus
 
   changedById String
-  changedBy   User   @relation(fields: [changedById], references: [id], onDelete: Restrict)
+  changedBy   User   @relation("StatusChangedBy", fields: [changedById], references: [id], onDelete: Restrict)
 
   reason    String? // optional: why it was blocked/resolved
   createdAt DateTime @default(now())
@@ -166,7 +166,7 @@ model TicketErrorRef {
   errorCode   ErrorCode @relation(fields: [errorCodeId], references: [id], onDelete: Restrict)
 
   addedById String
-  addedBy   User   @relation(fields: [addedById], references: [id], onDelete: Restrict)
+  addedBy   User   @relation("ErrorRefAddedBy", fields: [addedById], references: [id], onDelete: Restrict)
 
   note      String? // optional: “happens when auth token expires”
   createdAt DateTime @default(now())
@@ -181,7 +181,7 @@ model AuditLog {
 
   action  AuditAction
   actorId String
-  actor   User        @relation(fields: [actorId], references: [id], onDelete: Restrict)
+  actor   User        @relation("AuditActor", fields: [actorId], references: [id], onDelete: Restrict)
 
   ticketId String?
   ticket   Ticket? @relation(fields: [ticketId], references: [id], onDelete: Cascade)
