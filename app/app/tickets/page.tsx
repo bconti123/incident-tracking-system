@@ -24,6 +24,7 @@ export default async function TicketsPage() {
               <td><Link href={`/app/tickets/${t.id}`}>{t.title}</Link></td>
               <td>{t.status}</td>
               <td>{t.owner.email}</td>
+              <td>{t.priority ?? "-"}</td>
               <td>{t.assignedTo?.email ?? "-"}</td>
             </tr>
           ))}

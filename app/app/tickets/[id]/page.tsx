@@ -23,6 +23,7 @@ export default async function TicketDetailPage({
       <h1>{ticket.title}</h1>
       <p><b>Status:</b> {ticket.status}</p>
       <p><b>Owner:</b> {ticket.owner.email}</p>
+      <p><b>Priority:</b> {ticket.priority ?? "-"}</p>
       <p><b>Assigned to:</b> {ticket.assignedTo?.email ?? "-"}</p>
 
       {canEdit && (
@@ -31,6 +32,7 @@ export default async function TicketDetailPage({
           <TicketAdminForm
             ticketId={ticket.id}
             initialStatus={ticket.status}
+            initialPriority={ticket.priority}
             initialAssignedToId={ticket.assignedToId ?? null}
             users={users}
           />

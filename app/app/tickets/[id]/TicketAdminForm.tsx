@@ -9,16 +9,19 @@ export default function TicketAdminForm({
   ticketId,
   initialStatus,
   initialAssignedToId,
+  initialPriority,
   users,
 }: {
   ticketId: string;
   initialStatus: "OPEN" | "IN_PROGRESS" | "BLOCKED" | "RESOLVED";
+  initialPriority: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
   initialAssignedToId: string | null;
   users: UserOption[];
 }) {
   const [status, setStatus] = useState(initialStatus);
   const [assignedToId, setAssignedToId] = useState<string>(initialAssignedToId ?? "");
-  console.log("assignedToId", assignedToId);
+  const [priority, setPriority] = useState(initialPriority ?? "");
+
   return (
     <form action={updateTicketAction} style={{ marginTop: 16 }}>
       <input type="hidden" name="ticketId" value={ticketId} />
@@ -31,6 +34,17 @@ export default function TicketAdminForm({
           <option value="IN_PROGRESS">IN_PROGRESS</option>
           <option value="BLOCKED">BLOCKED</option>
           <option value="RESOLVED">RESOLVED</option>
+        </select>
+      </div>
+
+      <div style={{ marginTop: 8 }}>
+        <label>Priority</label>
+        <br />
+        <select name="priority" value={priority} onChange={(e) => setPriority(e.target.value as any)}>
+          <option value="LOW">LOW</option>
+          <option value="MEDIUM">MEDIUM</option>
+          <option value="HIGH">HIGH</option>
+          <option value="URGENT">URGENT</option>
         </select>
       </div>
 

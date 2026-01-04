@@ -38,6 +38,7 @@ const UpdateTicketSchema = z.object({
   ticketId: z.string().min(1),
   status: z.enum(["OPEN", "IN_PROGRESS", "RESOLVED", "BLOCKED"]).optional(),
   assignedToId: z.string().nullable().optional(),
+  priority: z.enum(["LOW", "MEDIUM", "HIGH", "URGENT"]).optional(),
 });
 
 export const updateTicketAction = async (formData: FormData) => {
@@ -48,18 +49,20 @@ export const updateTicketAction = async (formData: FormData) => {
     ticketId: formData.get("ticketId"),
     status: formData.get("status") || undefined,
     assignedToId: (formData.get("assignedToId") as string) || null,
+    priority: formData.get("priority") || undefined,
   });
   if (!parsed.success) throw new Error("Invalid input");
 
   // optional: ensure ticket exists
   const ticket = await prisma.ticket.findUnique({ where: { id: parsed.data.ticketId } });
   if (!ticket) throw new Error("Not found");
-  console.log("ticket", ticket.assignedToId);
+
   await prisma.ticket.update({
     where: { id: parsed.data.ticketId },
     data: {
       ...(parsed.data.status ? { status: parsed.data.status as any } : {}),
       ...(parsed.data.assignedToId !== undefined ? { assignedToId: parsed.data.assignedToId } : {}),
+      ...(parsed.data.priority ? { priority: parsed.data.priority as any } : {}),
     },
   });
 
