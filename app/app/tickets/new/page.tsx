@@ -23,7 +23,7 @@ export default function NewTicketPage() {
           style={{ width: "100%", height: 160 }}
         />
 
-        <button type="submit" style={{ marginTop: 16 }} href="/app/tickets">
+        <button type="submit" style={{ marginTop: 16 }}>
           Create
         </button>
       </form>

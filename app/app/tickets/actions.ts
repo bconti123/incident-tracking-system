@@ -36,8 +36,8 @@ export const createTicketAction = async (formData: FormData) => {
 
 const UpdateTicketSchema = z.object({
   ticketId: z.string().min(1),
-  status: z.enum(["OPEN", "IN_PROGRESS", "RESOLVED", "CLOSED"]).optional(),
-  assigneeId: z.string().nullable().optional(),
+  status: z.enum(["OPEN", "IN_PROGRESS", "RESOLVED", "BLOCKED"]).optional(),
+  assignedToId: z.string().nullable().optional(),
 });
 
 export const updateTicketAction = async (formData: FormData) => {
@@ -47,19 +47,19 @@ export const updateTicketAction = async (formData: FormData) => {
   const parsed = UpdateTicketSchema.safeParse({
     ticketId: formData.get("ticketId"),
     status: formData.get("status") || undefined,
-    assigneeId: (formData.get("assigneeId") as string) || null,
+    assignedToId: (formData.get("assignedToId") as string) || null,
   });
   if (!parsed.success) throw new Error("Invalid input");
 
   // optional: ensure ticket exists
   const ticket = await prisma.ticket.findUnique({ where: { id: parsed.data.ticketId } });
   if (!ticket) throw new Error("Not found");
-
+  console.log("ticket", ticket.assignedToId);
   await prisma.ticket.update({
     where: { id: parsed.data.ticketId },
     data: {
       ...(parsed.data.status ? { status: parsed.data.status as any } : {}),
-      ...(parsed.data.assigneeId !== undefined ? { assigneeId: parsed.data.assigneeId } : {}),
+      ...(parsed.data.assignedToId !== undefined ? { assignedToId: parsed.data.assignedToId } : {}),
     },
   });
 
@@ -83,6 +83,8 @@ export const listTicketsForCurrentUser = async () => {
 }
 
 export const getTicketForCurrentUser = async (ticketId: string) => {
+  if (!ticketId) throw new Error("Invalid ticket ID");
+
   const user = await requireUser();
 
   const ticket = await prisma.ticket.findUnique({
@@ -99,4 +101,14 @@ export const getTicketForCurrentUser = async (ticketId: string) => {
   if (!allowed) throw new Error("Forbidden");
 
   return { ticket, user };
+}
+
+export const listAssignableUsers = async () => {
+  const user = await requireUser();
+  if (user.role !== "SUPPORT" && user.role !== "ADMIN") return [];
+
+  return prisma.user.findMany({
+    orderBy: { email: "asc" },
+    select: { id: true, email: true, role: true },
+  });
 }
