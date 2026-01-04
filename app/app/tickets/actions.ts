@@ -5,13 +5,14 @@ import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/guards";
 import { canCreateTicket, canUpdateTicket, canViewAllTickets } from "@/lib/rbac";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
 const CreateTicketSchema = z.object({
   title: z.string().min(3).max(120),
   description: z.string().max(5000).optional(),
 });
 
-export async function createTicketAction(formData: FormData) {
+export const createTicketAction = async (formData: FormData) => {
   const user = await requireUser();
   if (!canCreateTicket(user.role)) throw new Error("Forbidden");
 
@@ -30,6 +31,7 @@ export async function createTicketAction(formData: FormData) {
   });
 
   revalidatePath("/app/tickets");
+  redirect("/app/tickets");
 }
 
 const UpdateTicketSchema = z.object({
@@ -38,7 +40,7 @@ const UpdateTicketSchema = z.object({
   assigneeId: z.string().nullable().optional(),
 });
 
-export async function updateTicketAction(formData: FormData) {
+export const updateTicketAction = async (formData: FormData) => {
   const user = await requireUser();
   if (!canUpdateTicket(user.role)) throw new Error("Forbidden");
 
@@ -65,7 +67,7 @@ export async function updateTicketAction(formData: FormData) {
   revalidatePath(`/app/tickets/${parsed.data.ticketId}`);
 }
 
-export async function listTicketsForCurrentUser() {
+export const listTicketsForCurrentUser = async () => {
   const user = await requireUser();
 
   const where = canViewAllTickets(user.role) ? {} : { ownerId: user.id };
@@ -80,7 +82,7 @@ export async function listTicketsForCurrentUser() {
   });
 }
 
-export async function getTicketForCurrentUser(ticketId: string) {
+export const getTicketForCurrentUser = async (ticketId: string) => {
   const user = await requireUser();
 
   const ticket = await prisma.ticket.findUnique({
