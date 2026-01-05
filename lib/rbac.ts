@@ -5,7 +5,7 @@ export const canViewAllTickets = (role: Role) => {
 }
 
 export const canCreateTicket = (role: Role) => {
-  return role === "ADMIN" || role === "USER"; // per your Day 2 rules
+  return role === "ADMIN" || role === "USER"; 
 }
 
 export const canUpdateTicket = (role: Role) =>{

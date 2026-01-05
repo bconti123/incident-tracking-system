@@ -22,17 +22,40 @@ export const createTicketAction = async (formData: FormData) => {
   });
   if (!parsed.success) throw new Error("Invalid input");
 
-  await prisma.ticket.create({
-    data: {
-      title: parsed.data.title,
-      description: parsed.data.description,
-      ownerId: user.id,
-    },
+  const ticket = await prisma.$transaction(async (tx) => {
+    const ticket = await tx.ticket.create({
+      data: {
+        title: parsed.data.title,
+        description: parsed.data.description,
+        ownerId: user.id,
+      },
+    });
+
+    await tx.auditLog.create({
+      data: {
+        action: "TICKET_CREATED",
+        actorId: user.id,
+        ticketId: ticket.id,
+        entityType: "Ticket",
+        entityId: ticket.id,
+        afterJson: {
+          title: ticket.title,
+          description: ticket.description,
+          status: ticket.status,
+          priority: ticket.priority,
+          ownerId: ticket.ownerId,
+          assignedToId: ticket.assignedToId,
+        },
+      },
+    });
+
+    return ticket;
   });
 
   revalidatePath("/app/tickets");
-  redirect("/app/tickets");
-}
+  redirect(`/app/tickets/${ticket.id}`); // nicer UX than list
+};
+
 
 const UpdateTicketSchema = z.object({
   ticketId: z.string().min(1),
@@ -47,28 +70,141 @@ export const updateTicketAction = async (formData: FormData) => {
 
   const parsed = UpdateTicketSchema.safeParse({
     ticketId: formData.get("ticketId"),
-    status: formData.get("status") || undefined,
+    status: (formData.get("status") as string) || undefined,
     assignedToId: (formData.get("assignedToId") as string) || null,
-    priority: formData.get("priority") || undefined,
+    priority: (formData.get("priority") as string) || undefined,
   });
   if (!parsed.success) throw new Error("Invalid input");
 
-  // optional: ensure ticket exists
-  const ticket = await prisma.ticket.findUnique({ where: { id: parsed.data.ticketId } });
-  if (!ticket) throw new Error("Not found");
-
-  await prisma.ticket.update({
+  const before = await prisma.ticket.findUnique({
     where: { id: parsed.data.ticketId },
-    data: {
-      ...(parsed.data.status ? { status: parsed.data.status as any } : {}),
-      ...(parsed.data.assignedToId !== undefined ? { assignedToId: parsed.data.assignedToId } : {}),
-      ...(parsed.data.priority ? { priority: parsed.data.priority as any } : {}),
+    select: {
+      id: true,
+      status: true,
+      assignedToId: true,
+      priority: true,
+      ownerId: true,
+      title: true,
+      description: true,
     },
   });
 
+  if (!before) throw new Error("Not found");
+
+  // If assignee is provided, ensure user exists
+  if (parsed.data.assignedToId) {
+    const assignee = await prisma.user.findUnique({ where: { id: parsed.data.assignedToId } });
+    if (!assignee) throw new Error("Assignee not found");
+  }
+
+  const nextStatus = parsed.data.status ?? undefined;
+  const nextAssignedToId =
+    parsed.data.assignedToId !== undefined ? parsed.data.assignedToId : undefined;
+  const nextPriority = parsed.data.priority ?? undefined;
+
+  const statusChanged = nextStatus !== undefined && nextStatus !== before.status;
+  const assigneeChanged =
+    nextAssignedToId !== undefined && nextAssignedToId !== before.assignedToId;
+  const priorityChanged = nextPriority !== undefined && nextPriority !== before.priority;
+
+  await prisma.$transaction(async (tx) => {
+    const updated = await tx.ticket.update({
+      where: { id: before.id },
+      data: {
+        ...(nextStatus ? { status: nextStatus as any } : {}),
+        ...(nextAssignedToId !== undefined ? { assignedToId: nextAssignedToId } : {}),
+        ...(nextPriority ? { priority: nextPriority as any } : {}),
+      },
+      select: {
+        id: true,
+        status: true,
+        assignedToId: true,
+        priority: true,
+        ownerId: true,
+      },
+    });
+
+    // Status history row (only when status changes)
+    if (statusChanged) {
+      await tx.ticketStatusHistory.create({
+        data: {
+          ticketId: updated.id,
+          fromStatus: before.status,
+          toStatus: updated.status,
+          changedById: user.id,
+          reason: null,
+        },
+      });
+
+      await tx.auditLog.create({
+        data: {
+          action: "STATUS_CHANGED",
+          actorId: user.id,
+          ticketId: updated.id,
+          entityType: "Ticket",
+          entityId: updated.id,
+          beforeJson: { status: before.status },
+          afterJson: { status: updated.status },
+        },
+      });
+    }
+
+    if (assigneeChanged) {
+      await tx.auditLog.create({
+        data: {
+          action: "ASSIGNEE_CHANGED",
+          actorId: user.id,
+          ticketId: updated.id,
+          entityType: "Ticket",
+          entityId: updated.id,
+          beforeJson: { assignedToId: before.assignedToId },
+          afterJson: { assignedToId: updated.assignedToId },
+        },
+      });
+    }
+
+    if (priorityChanged) {
+      await tx.auditLog.create({
+        data: {
+          action: "PRIORITY_CHANGED",
+          actorId: user.id,
+          ticketId: updated.id,
+          entityType: "Ticket",
+          entityId: updated.id,
+          beforeJson: { priority: before.priority },
+          afterJson: { priority: updated.priority },
+        },
+      });
+    }
+
+    // Optional catch-all audit entry when anything changes
+    if (statusChanged || assigneeChanged || priorityChanged) {
+      await tx.auditLog.create({
+        data: {
+          action: "TICKET_UPDATED",
+          actorId: user.id,
+          ticketId: updated.id,
+          entityType: "Ticket",
+          entityId: updated.id,
+          beforeJson: {
+            status: before.status,
+            assignedToId: before.assignedToId,
+            priority: before.priority,
+          },
+          afterJson: {
+            status: updated.status,
+            assignedToId: updated.assignedToId,
+            priority: updated.priority,
+          },
+        },
+      });
+    }
+  });
+
   revalidatePath("/app/tickets");
-  revalidatePath(`/app/tickets/${parsed.data.ticketId}`);
-}
+  revalidatePath(`/app/tickets/${before.id}`);
+};
+
 
 export const listTicketsForCurrentUser = async () => {
   const user = await requireUser();
@@ -95,7 +231,17 @@ export const getTicketForCurrentUser = async (ticketId: string) => {
     include: {
       owner: { select: { id: true, email: true } },
       assignedTo: { select: { id: true, email: true } },
-    },
+      statusHistory: {
+        orderBy: { createdAt: "desc" },
+        take: 20,
+        include: { changedBy: { select: { email: true } } },
+      },
+      audits: {
+        orderBy: { createdAt: "desc" },
+        take: 20,
+        include: { actor: { select: { email: true } } },
+      },
+},
   });
 
   if (!ticket) throw new Error("Not found");
@@ -115,3 +261,4 @@ export const listAssignableUsers = async () => {
     select: { id: true, email: true, role: true },
   });
 }
+
