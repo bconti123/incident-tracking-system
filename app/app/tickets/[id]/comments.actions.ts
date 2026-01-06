@@ -4,7 +4,6 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/guards";
 import { revalidatePath } from "next/cache";
-import { Role } from "@prisma/client";
 
 const AddCommentSchema = z.object({
   ticketId: z.string().min(1),
