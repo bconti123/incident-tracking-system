@@ -6,6 +6,7 @@ import { requireUser } from "@/lib/guards";
 import { canCreateTicket, canUpdateTicket, canViewAllTickets } from "@/lib/rbac";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { Prisma } from "@prisma/client";
 
 const CreateTicketSchema = z.object({
   title: z.string().min(3).max(120),
@@ -38,6 +39,7 @@ export const createTicketAction = async (formData: FormData) => {
         ticketId: ticket.id,
         entityType: "Ticket",
         entityId: ticket.id,
+        beforeJson: Prisma.JsonNull,
         afterJson: {
           title: ticket.title,
           description: ticket.description,
