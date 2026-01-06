@@ -243,7 +243,11 @@ export const getTicketForCurrentUser = async (ticketId: string) => {
         take: 20,
         include: { actor: { select: { email: true } } },
       },
-},
+      comments: {
+        orderBy: { createdAt: "asc" },
+        include: { author: { select: { id: true, email: true } } },
+      },
+    },
   });
 
   if (!ticket) throw new Error("Not found");

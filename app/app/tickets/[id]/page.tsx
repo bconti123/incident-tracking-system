@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getTicketForCurrentUser, listAssignableUsers } from "../actions";
 import TicketAdminForm from "./TicketAdminForm";
+import { addCommentAction } from "./comments.actions";
 
 export default async function TicketDetailPage({
   params,
@@ -38,6 +39,31 @@ export default async function TicketDetailPage({
           />
         </div>
       )}
+
+    <h3 style={{ marginTop: 24 }}>Comments</h3>
+
+    <form action={addCommentAction} style={{ marginTop: 8 }}>
+      <input type="hidden" name="ticketId" value={ticket.id} />
+      <textarea name="body" style={{ width: "100%", height: 100 }} />
+      <button type="submit" style={{ marginTop: 8 }}>Add comment</button>
+    </form>
+    
+    <ul style={{ marginTop: 16 }}>
+      {ticket.comments.map((c: any) => (
+        <li key={c.id} style={{ marginBottom: 12 }}>
+          <div style={{ fontSize: 12, opacity: 0.8 }}>
+            {c.author.email} • {new Date(c.createdAt).toLocaleString()}
+            {c.editedAt ? " (edited)" : ""}
+          </div>
+
+          <div style={{ whiteSpace: "pre-wrap" }}>
+            {c.isDeleted ? <i>Comment deleted</i> : c.body}
+          </div>
+        </li>
+      ))}
+    </ul>
+
+
       <h3 style={{ marginTop: 24 }}>Status History</h3>
       <ul>
         {ticket.statusHistory.map((h: any) => (

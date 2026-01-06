@@ -7,7 +7,7 @@ import { revalidatePath } from "next/cache";
 import { Role } from "@prisma/client";
 
 const AddCommentSchema = z.object({
-  ticketId: z.string().uuid(),
+  ticketId: z.string().min(1),
   body: z.string().min(1).max(2000),
 });
 
@@ -102,6 +102,53 @@ export const editCommentAction = async (formData: FormData) => {
                 },
                 afterJson: {
                     body: parsed.data.body,
+                },
+            },
+        });
+    });
+
+    revalidatePath(`/app/tickets/${comment.ticketId}`);
+}
+
+const DeletedCommentSchema = z.object({
+    commentId: z.string().uuid(),
+});
+
+export const deleteCommentAction = async (formData: FormData) => {
+    const user = await requireUser();
+
+    const parsed = DeletedCommentSchema.safeParse({
+        commentId: formData.get("commentId"),
+    });
+
+    if (!parsed.success) throw new Error("Invalid input");
+
+    const comment = await prisma.ticketComment.findUnique({
+        where: { id: parsed.data.commentId },
+        select: { id: true, ticketId: true, authorId: true, body: true, isDeleted: true },
+    });
+
+    if (!comment) throw new Error("Not found");
+    if (comment.isDeleted) return; // Already deleted
+
+    const canDelete = user.role === "ADMIN" || comment.authorId === user.id;
+    if (!canDelete) throw new Error("Forbidden");
+
+    await prisma.$transaction(async (tx) => {
+        await tx.ticketComment.update({
+            where: { id: comment.id },
+            data: { isDeleted: true, deletedAt: new Date() },
+        });
+
+        await tx.auditLog.create({
+            data: {
+                action: "COMMENT_DELETED",
+                actorId: user.id,
+                ticketId: comment.ticketId,
+                entityType: "TicketComment",
+                entityId: comment.id,
+                beforeJson: {
+                    body: comment.body,
                 },
             },
         });
