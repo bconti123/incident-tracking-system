@@ -58,7 +58,7 @@ export const addCommentAction = async (formData: FormData) => {
 }
 
 const EditCommentSchema = z.object({
-    commentId: z.string().uuid(),
+    commentId: z.string().min(1),
     body: z.string().min(1).max(2000),
 });
 
@@ -110,7 +110,7 @@ export const editCommentAction = async (formData: FormData) => {
 }
 
 const DeletedCommentSchema = z.object({
-    commentId: z.string().uuid(),
+    commentId: z.string().min(1),
 });
 
 export const deleteCommentAction = async (formData: FormData) => {

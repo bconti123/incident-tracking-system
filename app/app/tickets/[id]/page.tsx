@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getTicketForCurrentUser, listAssignableUsers } from "../actions";
 import TicketAdminForm from "./TicketAdminForm";
 import { addCommentAction } from "./comments.actions";
+import CommentItem from "./CommentItem";
 
 export default async function TicketDetailPage({
   params,
@@ -50,16 +51,12 @@ export default async function TicketDetailPage({
     
     <ul style={{ marginTop: 16 }}>
       {ticket.comments.map((c: any) => (
-        <li key={c.id} style={{ marginBottom: 12 }}>
-          <div style={{ fontSize: 12, opacity: 0.8 }}>
-            {c.author.email} • {new Date(c.createdAt).toLocaleString()}
-            {c.editedAt ? " (edited)" : ""}
-          </div>
-
-          <div style={{ whiteSpace: "pre-wrap" }}>
-            {c.isDeleted ? <i>Comment deleted</i> : c.body}
-          </div>
-        </li>
+        <CommentItem
+          key={c.id}
+          comment={c}
+          currentUserId={user.id}
+          currentUserRole={user.role}
+        />
       ))}
     </ul>
 

@@ -55,7 +55,7 @@ export const createTicketAction = async (formData: FormData) => {
   });
 
   revalidatePath("/app/tickets");
-  redirect(`/app/tickets/${ticket.id}`); // nicer UX than list
+  redirect(`/app/tickets/${ticket.id}`);
 };
 
 
