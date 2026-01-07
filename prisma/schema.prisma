@@ -6,37 +6,19 @@ datasource db {
   provider = "postgresql"
 }
 
+/* 
+Model - User
+Role enum - ADMIN, SUPPORT, USER
+Relationships:
+- ticketsCreated (Ticket) - relation "TicketCreatedBy"
+- ticketsAssigned (Ticket) - relation "TicketAssignedTo"
+- comments (TicketComment)
+- audits (AuditLog) - relation "AuditActor"
+*/
 enum Role {
   ADMIN
   SUPPORT
   USER
-}
-
-enum TicketStatus {
-  OPEN
-  IN_PROGRESS
-  BLOCKED
-  RESOLVED
-}
-
-enum AuditAction {
-  TICKET_CREATED
-  TICKET_UPDATED
-  STATUS_CHANGED
-  COMMENT_ADDED
-  COMMENT_EDITED
-  COMMENT_DELETED
-  ASSIGNEE_CHANGED
-  PRIORITY_CHANGED
-  ERROR_REF_ADDED
-  ERROR_REF_REMOVED
-}
-
-enum Priority {
-  LOW
-  MEDIUM
-  HIGH
-  URGENT
 }
 
 model User {
@@ -51,7 +33,6 @@ model User {
   comments        TicketComment[]
   audits          AuditLog[]      @relation("AuditActor")
 
-  // add these:
   statusChanges  TicketStatusHistory[] @relation("StatusChangedBy")
   errorRefsAdded TicketErrorRef[]      @relation("ErrorRefAddedBy")
 
@@ -59,6 +40,30 @@ model User {
   updatedAt DateTime @updatedAt
 
   @@index([role])
+}
+/* 
+Model - Ticket
+Enums - TicketStatus (OPEN, IN_PROGRESS, BLOCKED, RESOLVED), Priority (LOW, MEDIUM, HIGH, URGENT)
+Relationships:
+- owner (User) - relation "TicketCreatedBy"
+- assignedTo (User) - relation "TicketAssignedTo"
+- errorRefs (many-to-many with ErrorCode through TicketErrorRef)
+- comments (TicketComment)
+- statusHistory (TicketStatusHistory)
+- audits (AuditLog)
+*/
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  BLOCKED
+  RESOLVED
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
 }
 
 model Ticket {
@@ -68,7 +73,6 @@ model Ticket {
   status      TicketStatus @default(OPEN)
   priority    Priority     @default(MEDIUM)
 
-  // relationships
   ownerId String
   owner   User   @relation("TicketCreatedBy", fields: [ownerId], references: [id], onDelete: Restrict)
 
@@ -96,6 +100,12 @@ model Ticket {
   @@index([createdAt])
 }
 
+/* 
+Model - TicketComment
+Relationships:
+- ticket (Ticket)
+- author (User)
+*/
 model TicketComment {
   id       String @id @default(cuid())
   ticketId String
@@ -120,6 +130,12 @@ model TicketComment {
   @@index([authorId])
 }
 
+/* 
+Model - TicketStatusHistory
+Relationships:
+- ticket (Ticket)
+- changedBy (User) - relation "StatusChangedBy"
+*/
 model TicketStatusHistory {
   id       String @id @default(cuid())
   ticketId String
@@ -174,6 +190,26 @@ model TicketErrorRef {
   @@unique([ticketId, errorCodeId])
   @@index([ticketId])
   @@index([errorCodeId])
+}
+
+/* 
+Model - AuditLog
+Enum - AuditAction
+Relationships:
+- actor (User) - relation "AuditActor"
+- ticket (Ticket) (optional)
+*/
+enum AuditAction {
+  TICKET_CREATED
+  TICKET_UPDATED
+  STATUS_CHANGED
+  COMMENT_ADDED
+  COMMENT_EDITED
+  COMMENT_DELETED
+  ASSIGNEE_CHANGED
+  PRIORITY_CHANGED
+  ERROR_REF_ADDED
+  ERROR_REF_REMOVED
 }
 
 model AuditLog {
