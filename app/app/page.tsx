@@ -13,6 +13,7 @@ export default async function AppHome() {
       </p>
 
       <ul>
+        <li><Link href="/app/dashboard">Dashboard</Link></li>
         <li><Link href="/app/tickets">Tickets</Link></li>
         <li><Link href="/app/admin/users">User Management (ADMIN)</Link></li>
       </ul>
