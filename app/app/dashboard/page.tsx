@@ -132,7 +132,7 @@ export default async function DashboardPage() {
   );
 }
 
-function Card({ title, value, href }: { title: string; value: number; href: string }) {
+const Card = ({ title, value, href }: { title: string; value: number; href: string }) => {
   return (
     <Link
       href={href}

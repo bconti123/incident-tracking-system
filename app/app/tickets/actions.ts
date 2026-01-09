@@ -15,7 +15,11 @@ const CreateTicketSchema = z.object({
 
 export const createTicketAction = async (formData: FormData) => {
   const user = await requireUser();
-  if (!canCreateTicket(user.role)) throw new Error("Forbidden");
+  if (!canCreateTicket(user.role)) {
+    console.error("Forbidden: user role", user.role);
+    revalidatePath("/app/forbidden");
+    redirect("/app/forbidden");
+  };
 
   const parsed = CreateTicketSchema.safeParse({
     title: formData.get("title"),
@@ -68,7 +72,11 @@ const UpdateTicketSchema = z.object({
 
 export const updateTicketAction = async (formData: FormData) => {
   const user = await requireUser();
-  if (!canUpdateTicket(user.role)) throw new Error("Forbidden");
+  if (!canUpdateTicket(user.role)) {
+    console.error("Forbidden: user role", user.role);
+    revalidatePath("/app/forbidden");
+    redirect("/app/forbidden");
+  };
 
   const parsed = UpdateTicketSchema.safeParse({
     ticketId: formData.get("ticketId"),
@@ -253,7 +261,11 @@ export const getTicketForCurrentUser = async (ticketId: string) => {
   if (!ticket) throw new Error("Not found");
 
   const allowed = canViewAllTickets(user.role) || ticket.ownerId === user.id;
-  if (!allowed) throw new Error("Forbidden");
+  if (!allowed) {
+    console.error("Forbidden: user", user.id, "ticket owner", ticket.ownerId)
+    revalidatePath("/app/forbidden");
+    redirect("/app/forbidden");
+  }
 
   return { ticket, user };
 }

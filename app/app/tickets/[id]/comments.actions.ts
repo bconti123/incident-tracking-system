@@ -4,6 +4,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/guards";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
 const AddCommentSchema = z.object({
   ticketId: z.string().min(1),
@@ -28,7 +29,11 @@ export const addCommentAction = async (formData: FormData) => {
     if (!ticket) throw new Error("Ticket not found");
 
     const canComment = user.role === "ADMIN" || user.role === "SUPPORT" || ticket.ownerId === user.id;
-    if (!canComment) throw new Error("Forbidden");
+    if (!canComment) {
+        console.error("Forbidden: user role", user.role);
+        revalidatePath("/app/forbidden");
+        redirect("/app/forbidden");
+    }
 
     await prisma.$transaction(async (tx) => {
         const comment = await tx.ticketComment.create({
@@ -81,7 +86,11 @@ export const editCommentAction = async (formData: FormData) => {
     if (comment.isDeleted) throw new Error("Comment Deleted");
 
     const canEdit = user.role === "ADMIN" || comment.authorId === user.id;
-    if (!canEdit) throw new Error("Forbidden");
+    if (!canEdit) {
+        console.error("Forbidden: user role", user.role);
+        revalidatePath("/app/forbidden");
+        redirect("/app/forbidden");
+    }
 
     await prisma.$transaction(async (tx) => {
         await tx.ticketComment.update({
@@ -131,7 +140,11 @@ export const deleteCommentAction = async (formData: FormData) => {
     if (comment.isDeleted) return; // Already deleted
 
     const canDelete = user.role === "ADMIN" || comment.authorId === user.id;
-    if (!canDelete) throw new Error("Forbidden");
+    if (!canDelete) {
+        console.error("Forbidden: user role", user.role);
+        revalidatePath("/app/forbidden");
+        redirect("/app/forbidden");
+    }
 
     await prisma.$transaction(async (tx) => {
         await tx.ticketComment.update({
