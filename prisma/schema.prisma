@@ -41,6 +41,7 @@ model User {
 
   @@index([role])
 }
+
 /* 
 Model - Ticket
 Enums - TicketStatus (OPEN, IN_PROGRESS, BLOCKED, RESOLVED), Priority (LOW, MEDIUM, HIGH, URGENT)
@@ -154,44 +155,6 @@ model TicketStatusHistory {
   @@index([changedById])
 }
 
-model ErrorCode {
-  id           String  @id @default(cuid())
-  code         Int // 500, 403, etc.
-  label        String // "Internal Server Error"
-  description  String? // what it means in your org
-  commonCauses String? // short notes
-  suggestedFix String? // playbook hint
-
-  // tickets referencing this error code
-  ticketRefs TicketErrorRef[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([code])
-  @@index([code])
-}
-
-model TicketErrorRef {
-  id String @id @default(cuid())
-
-  ticketId String
-  ticket   Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
-
-  errorCodeId String
-  errorCode   ErrorCode @relation(fields: [errorCodeId], references: [id], onDelete: Restrict)
-
-  addedById String
-  addedBy   User   @relation("ErrorRefAddedBy", fields: [addedById], references: [id], onDelete: Restrict)
-
-  note      String? // optional: “happens when auth token expires”
-  createdAt DateTime @default(now())
-
-  @@unique([ticketId, errorCodeId])
-  @@index([ticketId])
-  @@index([errorCodeId])
-}
-
 /* 
 Model - AuditLog
 Enum - AuditAction
@@ -238,4 +201,47 @@ model AuditLog {
   @@index([ticketId, createdAt])
   @@index([actorId, createdAt])
   @@index([action, createdAt])
+}
+
+/*
+Model - ErrorCode (Haven't used this yet, but could be useful)
+Relationships:
+- ticketRefs (many-to-many with Ticket through TicketErrorRef)
+*/
+model ErrorCode {
+  id           String  @id @default(cuid())
+  code         Int // 500, 403, etc.
+  label        String // "Internal Server Error"
+  description  String? // what it means in your org
+  commonCauses String? // short notes
+  suggestedFix String? // playbook hint
+
+  // tickets referencing this error code
+  ticketRefs TicketErrorRef[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([code])
+  @@index([code])
+}
+
+model TicketErrorRef {
+  id String @id @default(cuid())
+
+  ticketId String
+  ticket   Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  errorCodeId String
+  errorCode   ErrorCode @relation(fields: [errorCodeId], references: [id], onDelete: Restrict)
+
+  addedById String
+  addedBy   User   @relation("ErrorRefAddedBy", fields: [addedById], references: [id], onDelete: Restrict)
+
+  note      String? // optional: “happens when auth token expires”
+  createdAt DateTime @default(now())
+
+  @@unique([ticketId, errorCodeId])
+  @@index([ticketId])
+  @@index([errorCodeId])
 }
