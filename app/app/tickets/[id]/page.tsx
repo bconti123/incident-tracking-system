@@ -8,16 +8,20 @@ import Timeline from "./Timeline";
 
 export default async function TicketDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams?: Promise<{ system?: string }>;
 }) {
   const { id } = await params;
+  const sp = await searchParams ?? {};
+  const showSystem = sp.system === "1";
+  const timeline = await getTicketTimeline(id, showSystem);
 
   const { ticket, user } = await getTicketForCurrentUser(id);
-
   const canEdit = user.role === "ADMIN" || user.role === "SUPPORT";
   const users = canEdit ? await listAssignableUsers() : [];
-  const timeline = await getTicketTimeline(id);
+
   return (
     <div style={{ padding: 24 }}>
       <p>
@@ -61,8 +65,14 @@ export default async function TicketDetailPage({
         />
       ))}
     </ul>
-
-      <Timeline items={timeline} />
+    <div style={{ marginTop: 16 }}>
+      {!showSystem ? (
+        <Link href={`/app/tickets/${id}?system=1`}>Show system events</Link>
+      ) : (
+        <Link href={`/app/tickets/${id}`}>Hide system events</Link>
+      )}
+    </div>
+    <Timeline items={timeline} />
 
     </div>
   );

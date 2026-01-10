@@ -8,7 +8,7 @@ export type TimelineItem =
   | { type: "status"; id: string; createdAt: Date; from?: string; to: string; actorEmail: string }
   | { type: "audit"; id: string; createdAt: Date; action: string; actorEmail: string };
 
-export const getTicketTimeline = async (ticketId: string): Promise<TimelineItem[]> => {
+export const getTicketTimeline = async (ticketId: string, includeSystem = false): Promise<TimelineItem[]> => {
   const user = await requireUser();
 
   const ticket = await prisma.ticket.findUnique({
@@ -34,7 +34,7 @@ export const getTicketTimeline = async (ticketId: string): Promise<TimelineItem[
       include: { changedBy: { select: { email: true } } },
     }),
 
-    prisma.auditLog.findMany({
+    includeSystem ? prisma.auditLog.findMany({
       where: {
         ticketId,
         // exclude duplicates already represented as richer items
@@ -44,7 +44,7 @@ export const getTicketTimeline = async (ticketId: string): Promise<TimelineItem[
       },
       orderBy: { createdAt: "asc" },
       include: { actor: { select: { email: true } } },
-    }),
+    }) : [],
   ]);
 
   const timeline: TimelineItem[] = [
