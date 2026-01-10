@@ -1,5 +1,4 @@
-export type Role = "ADMIN" | "SUPPORT" | "USER";
-
+import { Role, UserLike, TicketLike } from "@/types/rbac";
 export const canViewAllTickets = (role: Role) => {
   return role === "ADMIN" || role === "SUPPORT";
 }
@@ -10,15 +9,6 @@ export const canCreateTicket = (role: Role) => {
 
 export const canUpdateTicket = (role: Role) =>{
   return role === "ADMIN" || role === "SUPPORT";
-}
-
-type UserLike = {
-  id: string;
-  role: Role;
-}
-
-type TicketLike = {
-  ownerId: string;
 }
 
 export const canViewTicket = (user: UserLike, ticket: TicketLike) => {
