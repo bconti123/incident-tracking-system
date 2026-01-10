@@ -30,8 +30,7 @@ export const addCommentAction = async (formData: FormData) => {
 
     const canComment = user.role === "ADMIN" || user.role === "SUPPORT" || ticket.ownerId === user.id;
     if (!canComment) {
-        console.error("Forbidden: user role", user.role);
-        revalidatePath("/app/forbidden");
+        console.warn("Forbidden comment addition: user role", user.role);
         redirect("/app/forbidden");
     }
 
@@ -87,8 +86,7 @@ export const editCommentAction = async (formData: FormData) => {
 
     const canEdit = user.role === "ADMIN" || comment.authorId === user.id;
     if (!canEdit) {
-        console.error("Forbidden: user role", user.role);
-        revalidatePath("/app/forbidden");
+        console.warn("Forbidden comment edit: user role", user.role);
         redirect("/app/forbidden");
     }
 
@@ -141,8 +139,7 @@ export const deleteCommentAction = async (formData: FormData) => {
 
     const canDelete = user.role === "ADMIN" || comment.authorId === user.id;
     if (!canDelete) {
-        console.error("Forbidden: user role", user.role);
-        revalidatePath("/app/forbidden");
+        console.warn("Forbidden comment deletion: user role", user.role);
         redirect("/app/forbidden");
     }
 

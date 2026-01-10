@@ -16,8 +16,7 @@ const CreateTicketSchema = z.object({
 export const createTicketAction = async (formData: FormData) => {
   const user = await requireUser();
   if (!canCreateTicket(user.role)) {
-    console.error("Forbidden: user role", user.role);
-    revalidatePath("/app/forbidden");
+    console.warn("Forbidden ticket creation: user role", user.role);
     redirect("/app/forbidden");
   };
 
@@ -73,8 +72,7 @@ const UpdateTicketSchema = z.object({
 export const updateTicketAction = async (formData: FormData) => {
   const user = await requireUser();
   if (!canUpdateTicket(user.role)) {
-    console.error("Forbidden: user role", user.role);
-    revalidatePath("/app/forbidden");
+    console.warn("Forbidden ticket update: user role", user.role);
     redirect("/app/forbidden");
   };
 
@@ -262,8 +260,7 @@ export const getTicketForCurrentUser = async (ticketId: string) => {
 
   const allowed = canViewAllTickets(user.role) || ticket.ownerId === user.id;
   if (!allowed) {
-    console.error("Forbidden: user", user.id, "ticket owner", ticket.ownerId)
-    revalidatePath("/app/forbidden");
+    console.warn("Forbidden view all tickets: user role", user.role);
     redirect("/app/forbidden");
   }
 
