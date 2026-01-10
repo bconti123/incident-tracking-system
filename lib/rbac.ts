@@ -11,3 +11,20 @@ export const canCreateTicket = (role: Role) => {
 export const canUpdateTicket = (role: Role) =>{
   return role === "ADMIN" || role === "SUPPORT";
 }
+
+type UserLike = {
+  id: string;
+  role: Role;
+}
+
+type TicketLike = {
+  ownerId: string;
+}
+
+export const canViewTicket = (user: UserLike, ticket: TicketLike) => {
+  // ADMIN / SUPPORT can view any ticket
+  if (user.role === "ADMIN" || user.role === "SUPPORT") return true;
+
+  // USER can only view their own tickets
+  return ticket.ownerId === user.id;
+};

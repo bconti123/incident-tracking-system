@@ -3,6 +3,8 @@ import { getTicketForCurrentUser, listAssignableUsers } from "../actions";
 import TicketAdminForm from "./TicketAdminForm";
 import { addCommentAction } from "./comments.actions";
 import CommentItem from "./CommentItem";
+import { getTicketTimeline } from "./timeline.actions";
+import Timeline from "./Timeline";
 
 export default async function TicketDetailPage({
   params,
@@ -15,7 +17,7 @@ export default async function TicketDetailPage({
 
   const canEdit = user.role === "ADMIN" || user.role === "SUPPORT";
   const users = canEdit ? await listAssignableUsers() : [];
-  
+  const timeline = await getTicketTimeline(id);
   return (
     <div style={{ padding: 24 }}>
       <p>
@@ -60,24 +62,7 @@ export default async function TicketDetailPage({
       ))}
     </ul>
 
-
-      <h3 style={{ marginTop: 24 }}>Status History</h3>
-      <ul>
-        {ticket.statusHistory.map((h: any) => (
-          <li key={h.id}>
-            {h.fromStatus ?? "—"} → {h.toStatus} by {h.changedBy.email}
-          </li>
-        ))}
-      </ul>
-
-      <h3 style={{ marginTop: 24 }}>Audit Log</h3>
-      <ul>
-        {ticket.audits.map((a: any) => (
-          <li key={a.id}>
-            {a.action} by {a.actor.email}
-          </li>
-        ))}
-      </ul>
+      <Timeline items={timeline} />
 
     </div>
   );
