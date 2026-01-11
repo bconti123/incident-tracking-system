@@ -15,7 +15,7 @@ export default async function AppHome() {
       <ul>
         <li><Link href="/app/dashboard">Dashboard</Link></li>
         <li><Link href="/app/tickets">Tickets</Link></li>
-        <li><Link href="/app/admin/users">User Management (ADMIN)</Link></li>
+        {session?.user.role === "ADMIN" && <li>User Management - (Under development)</li>}
       </ul>
     </div>
   );
