@@ -10,6 +10,7 @@ export default async function TicketsPage({ searchParams, } :
     status?: string;
     priority?: string;
     assignedToId?: string;
+    page?: string;
   }}
  ) {
   const sp = await searchParams ?? {};
@@ -38,6 +39,8 @@ export default async function TicketsPage({ searchParams, } :
     ];
   }
 
+  const PAGE_SIZE = 2;
+  const page = Math.max(1, Number(sp.page || 1));
 
   const tickets = await prisma.ticket.findMany({
     where,
@@ -46,7 +49,12 @@ export default async function TicketsPage({ searchParams, } :
       owner: { select: { email: true } },
       assignedTo: { select: { email: true } },
     },
+    take: PAGE_SIZE,
+    skip: (page - 1) * PAGE_SIZE,
   });
+
+  const total = await prisma.ticket.count({ where });
+  const totalPages = Math.ceil(total / PAGE_SIZE);
 
   const canEdit = user.role === "ADMIN" || user.role === "SUPPORT";
   const users = canEdit ? await listAssignableUsers() : [];
@@ -91,7 +99,17 @@ export default async function TicketsPage({ searchParams, } :
       <h1>Tickets</h1>
       <p><Link href="/app/tickets/new">Create ticket</Link></p>
 
+      <p>
+        Page {page} of {totalPages} ({total} tickets)
+      </p>
 
+      {page > 1 && (
+        <Link href={`/app/tickets?status=${sp.status ?? ""}&priority=${sp.priority ?? ""}&assignedToId=${sp.assignedToId ?? ""}&q=${sp.q ?? ""}&page=${page - 1}`}>Previous</Link>
+      )}
+      {page > 1 && page < totalPages && " | "}
+      {page < totalPages && (
+        <Link href={`/app/tickets?status=${sp.status ?? ""}&priority=${sp.priority ?? ""}&assignedToId=${sp.assignedToId ?? ""}&q=${sp.q ?? ""}&page=${page + 1}`}>Next</Link>
+      )}
 
       <table style={{ width: "100%", marginTop: 12 }}>
         <thead>
