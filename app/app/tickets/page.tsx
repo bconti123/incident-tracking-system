@@ -6,6 +6,7 @@ import { listAssignableUsers } from "./actions";
 
 export default async function TicketsPage({ searchParams, } :
   { searchParams? : {
+    q?: string;
     status?: string;
     priority?: string;
     assignedToId?: string;
@@ -30,6 +31,14 @@ export default async function TicketsPage({ searchParams, } :
     }
   }
 
+  if (sp.q) {
+    where.OR = [
+      { title: { contains: sp.q, mode: "insensitive" } },
+      { description: { contains: sp.q, mode: "insensitive" } },
+    ];
+  }
+
+
   const tickets = await prisma.ticket.findMany({
     where,
     orderBy: { createdAt: "desc" },
@@ -42,37 +51,47 @@ export default async function TicketsPage({ searchParams, } :
   const canEdit = user.role === "ADMIN" || user.role === "SUPPORT";
   const users = canEdit ? await listAssignableUsers() : [];
 
+  
+
   return (
     <div style={{ padding: 24 }}>
       <form method="get" style={{ marginBottom: 16 }}>
-      <select name="status" defaultValue={sp?.status ?? ""}>
-        <option value="">All statuses</option>
-        <option value="OPEN">OPEN</option>
-        <option value="IN_PROGRESS">IN_PROGRESS</option>
-        <option value="BLOCKED">BLOCKED</option>
-        <option value="RESOLVED">RESOLVED</option>
-      </select>
+        <input
+          type="search"
+          name="q"
+          placeholder="Search tickets..."
+          defaultValue={sp.q ?? ""}
+        />
+        <select name="status" defaultValue={sp?.status ?? ""}>
+          <option value="">All statuses</option>
+          <option value="OPEN">OPEN</option>
+          <option value="IN_PROGRESS">IN_PROGRESS</option>
+          <option value="BLOCKED">BLOCKED</option>
+          <option value="RESOLVED">RESOLVED</option>
+        </select>
 
-      <select name="priority" defaultValue={sp?.priority ?? ""}>
-        <option value="">All priorities</option>
-        <option value="LOW">LOW</option>
-        <option value="MEDIUM">MEDIUM</option>
-        <option value="HIGH">HIGH</option>
-        <option value="URGENT">URGENT</option>
-      </select>
-      { canEdit && (
-      <select name="assignedToId" defaultValue={sp?.assignedToId ?? ""}>
-        <option value="">All assignees</option>
-        <option value="null">Unassigned</option>
-        {users.map(u => (
-          <option key={u.id} value={u.id}>{u.email} ({u.role})</option>
-        ))}
-      </select>
-      )}
-      <button type="submit">Filter</button>
-    </form>
+        <select name="priority" defaultValue={sp?.priority ?? ""}>
+          <option value="">All priorities</option>
+          <option value="LOW">LOW</option>
+          <option value="MEDIUM">MEDIUM</option>
+          <option value="HIGH">HIGH</option>
+          <option value="URGENT">URGENT</option>
+        </select>
+        { canEdit && (
+        <select name="assignedToId" defaultValue={sp?.assignedToId ?? ""}>
+          <option value="">All assignees</option>
+          <option value="null">Unassigned</option>
+          {users.map(u => (
+            <option key={u.id} value={u.id}>{u.email} ({u.role})</option>
+          ))}
+        </select>
+        )}
+        <button type="submit">Filter</button>
+      </form>
       <h1>Tickets</h1>
       <p><Link href="/app/tickets/new">Create ticket</Link></p>
+
+
 
       <table style={{ width: "100%", marginTop: 12 }}>
         <thead>

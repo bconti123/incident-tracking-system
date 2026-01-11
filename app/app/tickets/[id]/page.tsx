@@ -33,6 +33,8 @@ export default async function TicketDetailPage({
       <p><b>Owner:</b> {ticket.owner.email}</p>
       <p><b>Priority:</b> {ticket.priority ?? "-"}</p>
       <p><b>Assigned to:</b> {ticket.assignedTo?.email ?? "-"}</p>
+      <p><b>Description:</b></p>
+      <p>{ticket.description}</p>
 
       {canEdit && (
         <div style={{ marginTop: 24 }}>
