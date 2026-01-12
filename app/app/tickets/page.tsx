@@ -39,7 +39,7 @@ export default async function TicketsPage({ searchParams, } :
     ];
   }
 
-  const PAGE_SIZE = 2;
+  const PAGE_SIZE = 20;
   const page = Math.max(1, Number(sp.page || 1));
 
   const tickets = await prisma.ticket.findMany({
