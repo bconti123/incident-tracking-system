@@ -17,6 +17,7 @@
     - Status / Priority / Assignee / Unassigned filters (URL-driven)
     - Dashboard metrics + recent activity
 - **Server-side validation** (Zod) and **transactions** (Prisma)
+- **Error code reference** (link common error codes to tickets with note+ audit trail)
 
 #### Tech Stack
 
