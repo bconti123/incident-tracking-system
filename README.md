@@ -19,6 +19,16 @@
 - **Server-side validation** (Zod) and **transactions** (Prisma)
 - **Error code reference** (link common error codes to tickets with note+ audit trail)
 
+#### Screenshot
+<img width="1751" height="617" alt="Screenshot 2026-01-11 202311" src="https://github.com/user-attachments/assets/aa99e4a5-7e60-48a8-841b-707e12bd6caa" />
+<img width="1640" height="753" alt="Screenshot 2026-01-11 202539" src="https://github.com/user-attachments/assets/2214236d-8570-43c4-bc6c-ff68f2c1cad7" />
+<img width="502" height="262" alt="Screenshot 2026-01-11 202723" src="https://github.com/user-attachments/assets/d6f3db0a-978e-4809-b552-5f304b5e97c9" />
+<img width="566" height="572" alt="Screenshot 2026-01-11 202747" src="https://github.com/user-attachments/assets/c0ee1949-6272-47c4-81b3-b493f77483c4" />
+
+
+
+
+
 #### Tech Stack
 
 - Next.js
