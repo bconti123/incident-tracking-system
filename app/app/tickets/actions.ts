@@ -253,6 +253,11 @@ export const getTicketForCurrentUser = async (ticketId: string) => {
         orderBy: { createdAt: "asc" },
         include: { author: { select: { id: true, email: true } } },
       },
+      errorRefs: {
+        orderBy: { createdAt: "desc" },
+        include: { errorCode: { select: { id: true, code: true, label: true, suggestedFix: true} },
+                   addedBy: { select: { email: true } } },
+      },  
     },
   });
 

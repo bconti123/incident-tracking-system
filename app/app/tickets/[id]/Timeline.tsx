@@ -159,6 +159,10 @@ function humanizeAudit(action: string) {
       return "Changed priority";
     case "TICKET_UPDATED":
       return "Updated ticket";
+    case "ERROR_REF_ADDED":
+      return "Added error reference";
+    case "ERROR_REF_REMOVED":
+      return "Removed error reference";
     default:
       return action;
   }

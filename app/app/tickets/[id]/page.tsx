@@ -5,6 +5,8 @@ import { addCommentAction } from "./comments.actions";
 import CommentItem from "./CommentItem";
 import { getTicketTimeline } from "./timeline.actions";
 import Timeline from "./Timeline";
+import { prisma } from "@/lib/prisma";
+import { ErrorCodeItem } from "./ErrorCodeItem";
 
 export default async function TicketDetailPage({
   params,
@@ -21,6 +23,14 @@ export default async function TicketDetailPage({
   const { ticket, user } = await getTicketForCurrentUser(id);
   const canEdit = user.role === "ADMIN" || user.role === "SUPPORT";
   const users = canEdit ? await listAssignableUsers() : [];
+  
+  const errorCodes = canEdit
+  ? await prisma.errorCode.findMany({
+      orderBy: { code: "asc" },
+      select: { id: true, code: true, label: true },
+    })
+  : [];
+
 
   return (
     <div style={{ padding: 24 }}>
@@ -48,7 +58,7 @@ export default async function TicketDetailPage({
           />
         </div>
       )}
-
+      <ErrorCodeItem canEdit={canEdit} ticket={ticket} errorCodes={errorCodes} />
     <h3 style={{ marginTop: 24 }}>Comments</h3>
 
     <form action={addCommentAction} style={{ marginTop: 8 }}>

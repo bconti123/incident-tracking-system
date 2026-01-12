@@ -24,6 +24,63 @@ async function main() {
   });
 
   console.log("✅ Seeded users: admin/support/user (Password123!)");
+
+  await prisma.errorCode.upsert({
+  where: { code: 401 },
+  update: {
+    label: "Unauthorized",
+    suggestedFix: "Verify authentication / session token",
+  },
+  create: {
+    code: 401,
+    label: "Unauthorized",
+    description: "Request lacks valid authentication credentials.",
+    suggestedFix: "Verify authentication / session token",
+  },
+  });
+
+  await prisma.errorCode.upsert({
+    where: { code: 403 },
+    update: {
+      label: "Forbidden",
+      suggestedFix: "Verify RBAC / permissions",
+    },
+    create: {
+      code: 403,
+      label: "Forbidden",
+      description: "Authenticated but not allowed to access resource.",
+      suggestedFix: "Verify RBAC / permissions",
+    },
+  });
+
+  await prisma.errorCode.upsert({
+    where: { code: 404 },
+    update: {
+      label: "Not Found",
+      suggestedFix: "Verify route/resource ID",
+    },
+    create: {
+      code: 404,
+      label: "Not Found",
+      description: "Resource does not exist or is not visible to requester.",
+      suggestedFix: "Verify route/resource ID",
+    },
+  });
+
+  await prisma.errorCode.upsert({
+    where: { code: 500 },
+    update: {
+      label: "Internal Server Error",
+      suggestedFix: "Check server logs; reproduce with consistent inputs",
+    },
+    create: {
+      code: 500,
+      label: "Internal Server Error",
+      description: "Unexpected server error.",
+      suggestedFix: "Check server logs; reproduce with consistent inputs",
+    },
+  });
+  console.log("✅ Seeded error codes: 401, 403, 404, 500");
 }
 
 main()

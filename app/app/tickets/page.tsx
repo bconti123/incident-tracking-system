@@ -59,6 +59,10 @@ export default async function TicketsPage({ searchParams, } :
   const canEdit = user.role === "ADMIN" || user.role === "SUPPORT";
   const users = canEdit ? await listAssignableUsers() : [];
 
+  const errorCodes = canEdit ? await prisma.errorCode.findMany({
+    orderBy: { code: "asc" },
+    select: { id: true, code: true, label: true },
+  }) : [];
   
 
   return (
