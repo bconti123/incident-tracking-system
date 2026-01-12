@@ -1,6 +1,6 @@
 # Incident Tracking System
 
-#### Features
+### Features
 
 - **Auth + RBAC** (ADMIN / SUPPORT / USER)
 - **Ticket CRUD** (create, view, update status/priority/assignee)
@@ -19,7 +19,7 @@
 - **Server-side validation** (Zod) and **transactions** (Prisma)
 - **Error code reference** (link common error codes to tickets with note+ audit trail)
 
-#### Screenshot
+### Screenshot
 
 **Ticket Dashboard**
 - Status and priority counts, unassigned and "assigned to me" views, and recent updated tickets
@@ -45,7 +45,7 @@
 
 
 
-#### Tech Stack
+### Tech Stack
 
 - Next.js
 - Auth.js / NextAuth (Credentials)
@@ -53,13 +53,13 @@
 - Zod validation
 - Docker (Postgres)
 
-#### Roles and Permissions (table)
+### Roles and Permissions (table)
 
 - **ADMIN**: manage everything
 - **SUPPORT**: view all tickets, update status/priority/assignee
 - **USER**: create tickets, view own tickets, comment on own tickets
 
-#### Architecture notes
+### Architecture notes
 
 - **Object-level authorization** via `canViewTicket(user, ticket)` to prevent ID guessing
 - **Server actions** for mutations (no thin API routes)
@@ -67,7 +67,7 @@
 - **Soft delete** for comments to preserve history
 - **Timeline view model**: normalized `TimelineItem[]` for rendering
 
-#### Getting started
+### Getting started
 
 ```bash
 npm install
@@ -81,9 +81,8 @@ Seed users (example):
 - support@test.com / Password123!
 - user@test.com / Password123!
 
-#### Next steps
+### Next steps
 
 - Improve the UI and more features
-- Screenshots for demo
 - Dockerize app
 - CI/CD pipeline
