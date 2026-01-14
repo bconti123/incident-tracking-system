@@ -85,6 +85,7 @@ Seed users (example):
 
 ### Next steps
 
-- Improve the UI and more features
-- Dockerize app
-- CI/CD pipeline
+- Improve the UI and expand feature coverage
+- Dockerize the application for consistent local and deployment environments
+- Add a CI/CD pipeline for automated testing and deployments
+- Add end-to-end (E2E) tests for critical user flows once the UI stabilizes
