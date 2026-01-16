@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/components/ui/Button";
 import { signIn } from "next-auth/react";
 import { useState } from "react";
 
@@ -8,28 +9,34 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
 
   return (
-    <div style={{ maxWidth: 360, margin: "80px auto" }}>
-      <h1>Login</h1>
+    <div className="max-w-sm mx-auto pt-20">
+      <h1 className="text-2xl font-bold mb-6">Login</h1>
 
-      <label>Email</label>
-      <input value={email} onChange={(e) => setEmail(e.target.value)} style={{ width: "100%" }} />
+      <label className="block mb-2">Email</label>
+      <input 
+        value={email} 
+        onChange={(e) => setEmail(e.target.value)} 
+        className="w-full px-3 py-2 border border-gray-300 rounded-md mb-4"
+      />
 
-      <label style={{ marginTop: 12, display: "block" }}>Password</label>
+      <label className="block mb-2 mt-3">Password</label>
       <input
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         type="password"
-        style={{ width: "100%" }}
+        className="w-full px-3 py-2 border border-gray-300 rounded-md mb-6"
       />
 
-      <button
-        style={{ marginTop: 16, width: "100%" }}
+      <Button
+        variant="primary"
+        style={{ width: "100%" }}
         onClick={() => signIn("credentials", { email, password, callbackUrl: "/app" })}
+        className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-4 rounded-full flex items-center justify-center"
       >
         Sign in
-      </button>
+      </Button>
 
-      <p style={{ marginTop: 16, fontSize: 12, opacity: 0.8 }}>
+      <p className="mt-4 text-xs opacity-80">
         Try: admin@test.com / support@test.com / user@test.com<br />
         Password: Password123!
       </p>
