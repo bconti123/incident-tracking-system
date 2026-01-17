@@ -1,6 +1,7 @@
 type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: 'primary' | 'secondary' | 'danger' | 'warning' | 'success' | 'info';
   size?: 'sm' | 'md' | 'lg';
+  type: 'button' | 'submit' | 'reset';
 };
 
 const VARIANTS = {
@@ -23,6 +24,7 @@ export const Button = ({
   variant = "primary",
   size = "md",
   className = "",
+  type = "button",
   ...props
 }: ButtonProps) => {
 
