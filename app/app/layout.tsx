@@ -12,7 +12,7 @@ export default function AppLayout({
       <header className="border-b">
         <Container size="xl" className="flex items-center justify-between py-4">
           <Link href="/app" className="text-lg font-semibold">
-            Incident Tracker
+            Incident Tracking System
           </Link>
           <LogoutButton />
         </Container>
