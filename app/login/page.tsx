@@ -28,10 +28,11 @@ export default function LoginPage() {
       />
 
       <Button
-        variant="primary"
         style={{ width: "100%" }}
         onClick={() => signIn("credentials", { email, password, callbackUrl: "/app" })}
-        className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-4 rounded-full flex items-center justify-center"
+        variant="primary"
+        size="md"
+        disabled={!email || !password}
       >
         Sign in
       </Button>
