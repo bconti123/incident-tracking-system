@@ -20,6 +20,7 @@ export default function AppLayout({
 
       <main>
         <Container size="xl" className="py-6">
+          <aside>{/* nav */}</aside>
           {children}
         </Container>
       </main>
