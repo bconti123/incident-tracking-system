@@ -3,9 +3,9 @@ import type { TimelineItem } from "./timeline.actions";
 export default function Timeline({ items }: { items: TimelineItem[] }) {
   if (items.length === 0) {
     return (
-      <div style={{ marginTop: 24 }}>
-        <h3>Timeline</h3>
-        <p style={{ opacity: 0.7 }}>No activity yet.</p>
+      <div className="space-y-2">
+        <h3 className="text-lg font-semibold text-gray-900">Timeline</h3>
+        <p className="text-sm text-gray-600">No activity yet.</p>
       </div>
     );
   }
@@ -13,10 +13,10 @@ export default function Timeline({ items }: { items: TimelineItem[] }) {
   let lastDay: string | null = null;
 
   return (
-    <div style={{ marginTop: 24 }}>
-      <h3>Timeline</h3>
+    <div className="space-y-4">
+      <h3 className="text-lg font-semibold text-gray-900">Timeline</h3>
 
-      <ul style={{ listStyle: "none", padding: 0, marginTop: 12 }}>
+      <ul className="space-y-3">
         {items.map((item) => {
           const dayKey = dayLabel(item.createdAt);
           const showDayHeader = dayKey !== lastDay;
@@ -25,26 +25,12 @@ export default function Timeline({ items }: { items: TimelineItem[] }) {
           return (
             <li key={`${item.type}-${item.id}`}>
               {showDayHeader && (
-                <div
-                  style={{
-                    margin: "16px 0 8px",
-                    fontSize: 12,
-                    fontWeight: 600,
-                    opacity: 0.7,
-                  }}
-                >
+                <div className="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-600">
                   {dayKey}
                 </div>
               )}
 
-              <div
-                style={{
-                  border: "1px solid #ddd",
-                  borderRadius: 8,
-                  padding: 12,
-                  marginBottom: 10,
-                }}
-              >
+              <div className="rounded-lg border border-gray-200 bg-white p-4">
                 <Header item={item} />
                 <Body item={item} />
                 <Time ts={item.createdAt} />
@@ -59,7 +45,7 @@ export default function Timeline({ items }: { items: TimelineItem[] }) {
 
 function Header({ item }: { item: TimelineItem }) {
   return (
-    <div style={{ fontWeight: 600 }}>
+    <div className="font-semibold text-gray-900">
       {item.type === "comment" && "💬 Comment"}
       {item.type === "status" && "🔁 Status change"}
       {item.type === "audit" && "🧾 Audit"}
@@ -71,11 +57,11 @@ function Body({ item }: { item: TimelineItem }) {
   switch (item.type) {
     case "comment":
       return (
-        <div style={{ marginTop: 6 }}>
-          <div style={{ fontSize: 12, opacity: 0.8 }}>
+        <div className="mt-2 space-y-2">
+          <div className="text-xs text-gray-600">
             {item.authorEmail}
           </div>
-          <div style={{ marginTop: 6, whiteSpace: "pre-wrap" }}>
+          <div className="whitespace-pre-wrap text-sm text-gray-700">
             {item.body}
           </div>
         </div>
@@ -83,19 +69,19 @@ function Body({ item }: { item: TimelineItem }) {
 
     case "status":
       return (
-        <div style={{ marginTop: 6 }}>
-          <div style={{ fontSize: 12, opacity: 0.8 }}>
+        <div className="mt-2 space-y-2">
+          <div className="text-xs text-gray-600">
             {item.actorEmail}
           </div>
-          <div style={{ marginTop: 6 }}>
+          <div className="text-sm text-gray-700">
             {item.from ? (
               <>
-                Changed status from <b>{item.from}</b> to{" "}
-                <b>{item.to}</b>
+                Changed status from <span className="font-medium">{item.from}</span> to{" "}
+                <span className="font-medium">{item.to}</span>
               </>
             ) : (
               <>
-                Set status to <b>{item.to}</b>
+                Set status to <span className="font-medium">{item.to}</span>
               </>
             )}
           </div>
@@ -104,11 +90,11 @@ function Body({ item }: { item: TimelineItem }) {
 
     case "audit":
       return (
-        <div style={{ marginTop: 6 }}>
-          <div style={{ fontSize: 12, opacity: 0.8 }}>
+        <div className="mt-2 space-y-2">
+          <div className="text-xs text-gray-600">
             {item.actorEmail}
           </div>
-          <div style={{ marginTop: 6 }}>
+          <div className="text-sm text-gray-700">
             {humanizeAudit(item.action)}
           </div>
         </div>
@@ -118,7 +104,7 @@ function Body({ item }: { item: TimelineItem }) {
 
 function Time({ ts }: { ts: Date }) {
   return (
-    <div style={{ fontSize: 11, opacity: 0.6, marginTop: 8 }}>
+    <div className="mt-3 border-t border-gray-200 pt-2 text-xs text-gray-500">
       {new Date(ts).toLocaleTimeString()}
     </div>
   );

@@ -1,58 +1,86 @@
 import { addErrorRefAction, removeErrorRefAction } from "./errorRefs.actions";
 import type { TicketWithErrorRefs, ErrorCodeOption } from "@/types/errorCode";
+import { Select } from "@/components/ui/Select";
+import { Input } from "@/components/ui/Input";
+import { Button } from "@/components/ui/Button";
 
 export const ErrorCodeItem = ({ canEdit, ticket, errorCodes } : { canEdit: boolean, ticket: TicketWithErrorRefs, errorCodes: ErrorCodeOption[]; }) => {
     return (
         <>
             {canEdit && (
-                <section style={{ marginTop: 16 }}>
-                    <h3>Error Codes</h3>
+                <section className="rounded-lg border border-gray-200 bg-white p-6">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Error Codes</h3>
 
-                    <form action={addErrorRefAction} style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                    <input type="hidden" name="ticketId" value={ticket.id} />
+                    <form action={addErrorRefAction} className="flex gap-3 flex-wrap items-end">
+                        <input type="hidden" name="ticketId" value={ticket.id} />
 
-                    <select name="errorCodeId" defaultValue="" required>
-                        <option value="" disabled>Select error code</option>
-                        {errorCodes.map(ec => (
-                        <option key={ec.id} value={ec.id}>
-                            {ec.code} - {ec.label}
-                        </option>
-                        ))}
-                    </select>
+                        <Select
+                            name="errorCodeId"
+                            label="Error Code"
+                            defaultValue=""
+                            required
+                        >
+                            <option value="" disabled>Select error code</option>
+                            {errorCodes.map(ec => (
+                                <option key={ec.id} value={ec.id}>
+                                    {ec.code} - {ec.label}
+                                </option>
+                            ))}
+                        </Select>
 
-                    <input name="note" placeholder="Optional note…" />
+                        <Input
+                            name="note"
+                            label="Note"
+                            placeholder="Optional note…"
+                            className="flex-1 min-w-[200px]"
+                        />
 
-                    <button type="submit">Add</button>
+                        <Button type="submit" variant="primary">
+                            Add
+                        </Button>
                     </form>
                 </section>
             )}
 
-            <section style={{ marginTop: 12 }}>
-                <h4>Linked Error Codes</h4>
+            <section className="rounded-lg border border-gray-200 bg-white p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Linked Error Codes</h3>
                 {ticket.errorRefs.length === 0 ? (
-                    <p style={{ opacity: 0.7 }}>No error codes linked.</p>
-                    ) : (
-                    <ul>
+                    <p className="text-sm text-gray-600">No error codes linked.</p>
+                ) : (
+                    <ul className="space-y-4">
                         {ticket.errorRefs.map((ref) => (
-                            <li key={ref.id} style={{ marginBottom: 8 }}>
-                                <div>
-                                <b>{ref.errorCode.code}</b> — {ref.errorCode.label}
+                            <li key={ref.id} className="rounded-md border border-gray-200 bg-gray-50 p-3">
+                                <div className="flex items-start justify-between gap-2">
+                                    <div className="flex-1">
+                                        <p className="font-semibold text-gray-900">{ref.errorCode.code}</p>
+                                        <p className="text-sm text-gray-700">{ref.errorCode.label}</p>
+                                        {ref.note && (
+                                            <p className="mt-1 text-sm text-gray-600">
+                                                <span className="font-medium">Note:</span> {ref.note}
+                                            </p>
+                                        )}
+                                        {ref.errorCode.suggestedFix && (
+                                            <p className="mt-1 text-sm text-gray-600">
+                                                <span className="font-medium">Fix:</span> {ref.errorCode.suggestedFix}
+                                            </p>
+                                        )}
+                                        <p className="mt-2 text-xs text-gray-500">
+                                            Added by {ref.addedBy.email}
+                                        </p>
+                                    </div>
+                                    {canEdit && (
+                                        <form action={removeErrorRefAction} className="inline">
+                                            <input type="hidden" name="ticketId" value={ticket.id} />
+                                            <input type="hidden" name="errorRefId" value={ref.id} />
+                                            <button
+                                                type="submit"
+                                                className="text-xs font-medium text-red-600 hover:text-red-900 whitespace-nowrap"
+                                            >
+                                                Remove
+                                            </button>
+                                        </form>
+                                    )}
                                 </div>
-                                {ref.note && <div style={{ opacity: 0.8 }}>Note: {ref.note}</div>}
-                                {ref.errorCode.suggestedFix && (
-                                <div style={{ opacity: 0.8 }}>Fix: {ref.errorCode.suggestedFix}</div>
-                                )}
-                                <div style={{ fontSize: 12, opacity: 0.7 }}>
-                                Added by {ref.addedBy.email}
-                                </div>
-
-                                {canEdit && (
-                                <form action={removeErrorRefAction}>
-                                    <input type="hidden" name="ticketId" value={ticket.id} />
-                                    <input type="hidden" name="errorRefId" value={ref.id} />
-                                    <button type="submit">Remove</button>
-                                </form>
-                                )}
                             </li>
                         ))}
                     </ul>

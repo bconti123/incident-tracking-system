@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { updateTicketAction } from "../actions";
+import { Select } from "@/components/ui/Select";
+import { Button } from "@/components/ui/Button";
 
 type UserOption = { id: string; email: string; role: string };
 
@@ -23,51 +25,50 @@ export default function TicketAdminForm({
   const [priority, setPriority] = useState(initialPriority ?? "");
 
   return (
-    <form action={updateTicketAction} style={{ marginTop: 16 }}>
+    <form action={updateTicketAction} className="space-y-4">
       <input type="hidden" name="ticketId" value={ticketId} />
 
-      <div style={{ marginTop: 8 }}>
-        <label>Status</label>
-        <br />
-        <select name="status" value={status} onChange={(e) => setStatus(e.target.value as any)}>
-          <option value="OPEN">OPEN</option>
-          <option value="IN_PROGRESS">IN_PROGRESS</option>
-          <option value="BLOCKED">BLOCKED</option>
-          <option value="RESOLVED">RESOLVED</option>
-        </select>
-      </div>
+      <Select
+        name="status"
+        label="Status"
+        value={status}
+        onChange={(e) => setStatus(e.target.value as any)}
+      >
+        <option value="OPEN">OPEN</option>
+        <option value="IN_PROGRESS">IN_PROGRESS</option>
+        <option value="BLOCKED">BLOCKED</option>
+        <option value="RESOLVED">RESOLVED</option>
+      </Select>
 
-      <div style={{ marginTop: 8 }}>
-        <label>Priority</label>
-        <br />
-        <select name="priority" value={priority} onChange={(e) => setPriority(e.target.value as any)}>
-          <option value="LOW">LOW</option>
-          <option value="MEDIUM">MEDIUM</option>
-          <option value="HIGH">HIGH</option>
-          <option value="URGENT">URGENT</option>
-        </select>
-      </div>
+      <Select
+        name="priority"
+        label="Priority"
+        value={priority}
+        onChange={(e) => setPriority(e.target.value as any)}
+      >
+        <option value="LOW">LOW</option>
+        <option value="MEDIUM">MEDIUM</option>
+        <option value="HIGH">HIGH</option>
+        <option value="URGENT">URGENT</option>
+      </Select>
 
-      <div style={{ marginTop: 12 }}>
-        <label>Assign to</label>
-        <br />
-        <select
-          name="assignedToId"
-          value={assignedToId}
-          onChange={(e) => setAssignedToId(e.target.value)}
-        >
-          <option value="">Unassigned</option>
-          {users.map((u) => (
-            <option key={u.id} value={u.id}>
-              {u.email} ({u.role})
-            </option>
-          ))}
-        </select>
-      </div>
+      <Select
+        name="assignedToId"
+        label="Assign To"
+        value={assignedToId}
+        onChange={(e) => setAssignedToId(e.target.value)}
+      >
+        <option value="">Unassigned</option>
+        {users.map((u) => (
+          <option key={u.id} value={u.id}>
+            {u.email} ({u.role})
+          </option>
+        ))}
+      </Select>
 
-      <button type="submit" style={{ marginTop: 16 }}>
+      <Button type="submit" variant="primary">
         Save
-      </button>
+      </Button>
     </form>
   );
 }

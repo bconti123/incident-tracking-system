@@ -64,90 +64,98 @@ export default async function DashboardPage() {
   ]);
 
   return (
-    <div style={{ padding: 24 }}>
-      <h1>Dashboard</h1>
-      <p style={{ opacity: 0.8 }}>
-        Signed in as {user.email} ({user.role})
-      </p>
-
-      <h3 style={{ marginTop: 16 }}>Status</h3>
-      <div style={{ display: "flex", gap: 16, flexWrap: "wrap", marginTop: 8 }}>
-        <Card title="Total" value={total} href="/app/tickets" />
-        <Card title="Open" value={open} href="/app/tickets?status=OPEN" />
-        <Card title="In Progress" value={inProgress} href="/app/tickets?status=IN_PROGRESS" />
-        <Card title="Blocked" value={blocked} href="/app/tickets?status=BLOCKED" />
-        <Card title="Resolved" value={resolved} href="/app/tickets?status=RESOLVED" />
-        {viewAll && (
-          <Card title="Unassigned" value={unassigned} href="/app/tickets?assignedToId=null" />
-        )}
-        {viewAll && (
-          <Card title="Assigned to me" value={assignedToMe} href={`/app/tickets?assignedToId=${user.id}`} />
-        )}
+    <div className="space-y-8">
+      <div>
+        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+        <p className="mt-2 text-sm text-gray-600">
+          Signed in as <span className="font-medium">{user.email}</span> ({user.role})
+        </p>
       </div>
 
-      <h3 style={{ marginTop: 24 }}>Priority</h3>
-      <div style={{ display: "flex", gap: 16, flexWrap: "wrap", marginTop: 8 }}>
-        <Card title="Low" value={low} href="/app/tickets?priority=LOW" />
-        <Card title="Medium" value={medium} href="/app/tickets?priority=MEDIUM" />
-        <Card title="High" value={high} href="/app/tickets?priority=HIGH" />
-        <Card title="Urgent" value={urgent} href="/app/tickets?priority=URGENT" />
+      <div className="space-y-6">
+        <div>
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Status</h2>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <DashboardCard title="Total" value={total} href="/app/tickets" />
+            <DashboardCard title="Open" value={open} href="/app/tickets?status=OPEN" />
+            <DashboardCard title="In Progress" value={inProgress} href="/app/tickets?status=IN_PROGRESS" />
+            <DashboardCard title="Blocked" value={blocked} href="/app/tickets?status=BLOCKED" />
+            <DashboardCard title="Resolved" value={resolved} href="/app/tickets?status=RESOLVED" />
+            {viewAll && (
+              <DashboardCard title="Unassigned" value={unassigned} href="/app/tickets?assignedToId=null" />
+            )}
+            {viewAll && (
+              <DashboardCard title="Assigned to me" value={assignedToMe} href={`/app/tickets?assignedToId=${user.id}`} />
+            )}
+          </div>
+        </div>
+
+        <div>
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Priority</h2>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <DashboardCard title="Low" value={low} href="/app/tickets?priority=LOW" />
+            <DashboardCard title="Medium" value={medium} href="/app/tickets?priority=MEDIUM" />
+            <DashboardCard title="High" value={high} href="/app/tickets?priority=HIGH" />
+            <DashboardCard title="Urgent" value={urgent} href="/app/tickets?priority=URGENT" />
+          </div>
+        </div>
+
+        <div>
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Recently Updated</h2>
+          {recent.length === 0 ? (
+            <p className="text-sm text-gray-600">No tickets yet.</p>
+          ) : (
+            <div className="overflow-x-auto rounded-lg border border-gray-200">
+              <table className="w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-700">Title</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-700">Status</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-700">Priority</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-700">Owner</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-700">Assigned To</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-700">Updated</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200 bg-white">
+                  {recent.map((t) => (
+                    <tr key={t.id} className="hover:bg-gray-50 transition-colors">
+                      <td className="whitespace-nowrap px-6 py-4 text-sm">
+                        <Link href={`/app/tickets/${t.id}`} className="font-medium text-blue-600 hover:text-blue-900">
+                          {t.title}
+                        </Link>
+                      </td>
+                      <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900">{t.status}</td>
+                      <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900">{t.priority}</td>
+                      <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900">{t.owner.email}</td>
+                      <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900">{t.assignedTo?.email ?? "-"}</td>
+                      <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900">{new Date(t.updatedAt).toLocaleString()}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+
+        <div>
+          <Link href="/app/tickets" className="inline-flex items-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors">
+            Go to Tickets →
+          </Link>
+        </div>
       </div>
-
-      <h3 style={{ marginTop: 24 }}>Recently updated</h3>
-      {recent.length === 0 ? (
-        <p style={{ opacity: 0.8 }}>No tickets yet.</p>
-      ) : (
-        <table style={{ width: "100%", marginTop: 8 }}>
-          <thead>
-            <tr>
-              <th align="left">Title</th>
-              <th align="left">Status</th>
-              <th align="left">Priority</th>
-              <th align="left">Owner</th>
-              <th align="left">Assigned To</th>
-              <th align="left">Updated</th>
-            </tr>
-          </thead>
-          <tbody>
-            {recent.map((t) => (
-              <tr key={t.id}>
-                <td>
-                  <Link href={`/app/tickets/${t.id}`}>{t.title}</Link>
-                </td>
-                <td>{t.status}</td>
-                <td>{t.priority}</td>
-                <td>{t.owner.email}</td>
-                <td>{t.assignedTo?.email ?? "-"}</td>
-                <td>{new Date(t.updatedAt).toLocaleString()}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
-
-      <p style={{ marginTop: 24 }}>
-        <Link href="/app/tickets">Go to Tickets →</Link>
-      </p>
     </div>
   );
 }
 
-const Card = ({ title, value, href }: { title: string; value: number; href: string }) => {
+const DashboardCard = ({ title, value, href }: { title: string; value: number; href: string }) => {
   return (
     <Link
       href={href}
-      style={{
-        display: "block",
-        width: 190,
-        padding: 16,
-        border: "1px solid #ddd",
-        borderRadius: 8,
-        textDecoration: "none",
-        color: "inherit",
-      }}
+      className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm hover:shadow-md transition-shadow hover:border-gray-300"
     >
-      <div style={{ fontSize: 12, opacity: 0.8 }}>{title}</div>
-      <div style={{ fontSize: 28, fontWeight: 700, marginTop: 6 }}>{value}</div>
+      <div className="text-xs font-medium uppercase tracking-wider text-gray-600">{title}</div>
+      <div className="mt-2 text-3xl font-bold text-gray-900">{value}</div>
     </Link>
   );
 }

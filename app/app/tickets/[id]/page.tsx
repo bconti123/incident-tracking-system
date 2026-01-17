@@ -7,6 +7,8 @@ import { getTicketTimeline } from "./timeline.actions";
 import Timeline from "./Timeline";
 import { prisma } from "@/lib/prisma";
 import { ErrorCodeItem } from "./ErrorCodeItem";
+import { Textarea } from "@/components/ui/Textarea";
+import { Button } from "@/components/ui/Button";
 
 export default async function TicketDetailPage({
   params,
@@ -33,59 +35,109 @@ export default async function TicketDetailPage({
 
 
   return (
-    <div style={{ padding: 24 }}>
-      <p>
-        <Link href="/app/tickets">← Back</Link>
-      </p>
+    <div className="space-y-8">
+      <div>
+        <Link
+          href="/app/tickets"
+          className="inline-flex items-center text-sm text-blue-600 hover:text-blue-900 mb-4"
+        >
+          ← Back to Tickets
+        </Link>
+        <h1 className="text-3xl font-bold text-gray-900">{ticket.title}</h1>
+      </div>
 
-      <h1>{ticket.title}</h1>
-      <p><b>Status:</b> {ticket.status}</p>
-      <p><b>Owner:</b> {ticket.owner.email}</p>
-      <p><b>Priority:</b> {ticket.priority ?? "-"}</p>
-      <p><b>Assigned to:</b> {ticket.assignedTo?.email ?? "-"}</p>
-      <p><b>Description:</b></p>
-      <p>{ticket.description}</p>
+      <div className="grid gap-6 lg:grid-cols-3">
+        <div className="space-y-4 lg:col-span-2">
+          <div className="rounded-lg border border-gray-200 bg-white p-6 space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wider text-gray-600">Status</p>
+                <p className="mt-1 text-lg font-medium text-gray-900">{ticket.status}</p>
+              </div>
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wider text-gray-600">Priority</p>
+                <p className="mt-1 text-lg font-medium text-gray-900">{ticket.priority ?? "-"}</p>
+              </div>
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wider text-gray-600">Owner</p>
+                <p className="mt-1 text-sm text-gray-900">{ticket.owner.email}</p>
+              </div>
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wider text-gray-600">Assigned To</p>
+                <p className="mt-1 text-sm text-gray-900">{ticket.assignedTo?.email ?? "-"}</p>
+              </div>
+            </div>
 
-      {canEdit && (
-        <div style={{ marginTop: 24 }}>
-          <h3>Support/Admin Controls</h3>
-          <TicketAdminForm
-            ticketId={ticket.id}
-            initialStatus={ticket.status}
-            initialPriority={ticket.priority}
-            initialAssignedToId={ticket.assignedToId ?? null}
-            users={users}
-          />
+            <div className="border-t border-gray-200 pt-4">
+              <p className="text-sm font-medium text-gray-700 mb-2">Description</p>
+              <p className="whitespace-pre-wrap text-sm text-gray-600">{ticket.description}</p>
+            </div>
+          </div>
+
+          {canEdit && (
+            <div className="rounded-lg border border-gray-200 bg-white p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Support/Admin Controls</h3>
+              <TicketAdminForm
+                ticketId={ticket.id}
+                initialStatus={ticket.status}
+                initialPriority={ticket.priority}
+                initialAssignedToId={ticket.assignedToId ?? null}
+                users={users}
+              />
+            </div>
+          )}
+
+          <ErrorCodeItem canEdit={canEdit} ticket={ticket} errorCodes={errorCodes} />
+
+          <div className="rounded-lg border border-gray-200 bg-white p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Comments</h3>
+
+            <form action={addCommentAction} className="mb-6 space-y-3">
+              <input type="hidden" name="ticketId" value={ticket.id} />
+              <Textarea
+                name="body"
+                rows={4}
+                placeholder="Add a comment..."
+              />
+              <Button type="submit" variant="primary">
+                Add Comment
+              </Button>
+            </form>
+
+            <div className="space-y-4 border-t border-gray-200 pt-4">
+              {ticket.comments.map((c: any) => (
+                <CommentItem
+                  key={c.id}
+                  comment={c}
+                  currentUserId={user.id}
+                  currentUserRole={user.role}
+                />
+              ))}
+            </div>
+          </div>
         </div>
-      )}
-      <ErrorCodeItem canEdit={canEdit} ticket={ticket} errorCodes={errorCodes} />
-    <h3 style={{ marginTop: 24 }}>Comments</h3>
 
-    <form action={addCommentAction} style={{ marginTop: 8 }}>
-      <input type="hidden" name="ticketId" value={ticket.id} />
-      <textarea name="body" style={{ width: "100%", height: 100 }} />
-      <button type="submit" style={{ marginTop: 8 }}>Add comment</button>
-    </form>
-    
-    <ul style={{ marginTop: 16 }}>
-      {ticket.comments.map((c: any) => (
-        <CommentItem
-          key={c.id}
-          comment={c}
-          currentUserId={user.id}
-          currentUserRole={user.role}
-        />
-      ))}
-    </ul>
-    <div style={{ marginTop: 16 }}>
-      {!showSystem ? (
-        <Link href={`/app/tickets/${id}?system=1`}>Show system events</Link>
-      ) : (
-        <Link href={`/app/tickets/${id}`}>Hide system events</Link>
-      )}
-    </div>
-    <Timeline items={timeline} />
-
+        <div className="space-y-4">
+          <div className="rounded-lg border border-gray-200 bg-white p-4">
+            {!showSystem ? (
+              <Link
+                href={`/app/tickets/${id}?system=1`}
+                className="text-sm font-medium text-blue-600 hover:text-blue-900"
+              >
+                Show system events
+              </Link>
+            ) : (
+              <Link
+                href={`/app/tickets/${id}`}
+                className="text-sm font-medium text-blue-600 hover:text-blue-900"
+              >
+                Hide system events
+              </Link>
+            )}
+          </div>
+          <Timeline items={timeline} />
+        </div>
+      </div>
     </div>
   );
 }

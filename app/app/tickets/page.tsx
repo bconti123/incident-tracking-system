@@ -3,6 +3,9 @@ import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/guards";
 import { canViewAllTickets } from "@/lib/rbac";
 import { listAssignableUsers } from "./actions";
+import { Input } from "@/components/ui/Input";
+import { Select } from "@/components/ui/Select";
+import { Button } from "@/components/ui/Button";
 
 export default async function TicketsPage({ searchParams, } :
   { searchParams? : {
@@ -66,77 +69,110 @@ export default async function TicketsPage({ searchParams, } :
   
 
   return (
-    <div style={{ padding: 24 }}>
-      <form method="get" style={{ marginBottom: 16 }}>
-        <input
-          type="search"
-          name="q"
-          placeholder="Search tickets..."
-          defaultValue={sp.q ?? ""}
-        />
-        <select name="status" defaultValue={sp?.status ?? ""}>
-          <option value="">All statuses</option>
-          <option value="OPEN">OPEN</option>
-          <option value="IN_PROGRESS">IN_PROGRESS</option>
-          <option value="BLOCKED">BLOCKED</option>
-          <option value="RESOLVED">RESOLVED</option>
-        </select>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold text-gray-900">Tickets</h1>
+        <p className="mt-1 text-sm text-gray-600">
+          <Link href="/app/tickets/new" className="font-medium text-blue-600 hover:text-blue-900">
+            Create ticket
+          </Link>
+        </p>
+      </div>
 
-        <select name="priority" defaultValue={sp?.priority ?? ""}>
-          <option value="">All priorities</option>
-          <option value="LOW">LOW</option>
-          <option value="MEDIUM">MEDIUM</option>
-          <option value="HIGH">HIGH</option>
-          <option value="URGENT">URGENT</option>
-        </select>
-        { canEdit && (
-        <select name="assignedToId" defaultValue={sp?.assignedToId ?? ""}>
-          <option value="">All assignees</option>
-          <option value="null">Unassigned</option>
-          {users.map(u => (
-            <option key={u.id} value={u.id}>{u.email} ({u.role})</option>
-          ))}
-        </select>
-        )}
-        <button type="submit">Filter</button>
+      <form method="get" className="space-y-4 rounded-lg border border-gray-200 bg-white p-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+          <Input
+            type="search"
+            name="q"
+            placeholder="Search tickets..."
+            defaultValue={sp.q ?? ""}
+          />
+          <Select name="status" defaultValue={sp?.status ?? ""}>
+            <option value="">All statuses</option>
+            <option value="OPEN">OPEN</option>
+            <option value="IN_PROGRESS">IN_PROGRESS</option>
+            <option value="BLOCKED">BLOCKED</option>
+            <option value="RESOLVED">RESOLVED</option>
+          </Select>
+
+          <Select name="priority" defaultValue={sp?.priority ?? ""}>
+            <option value="">All priorities</option>
+            <option value="LOW">LOW</option>
+            <option value="MEDIUM">MEDIUM</option>
+            <option value="HIGH">HIGH</option>
+            <option value="URGENT">URGENT</option>
+          </Select>
+
+          {canEdit && (
+            <Select name="assignedToId" defaultValue={sp?.assignedToId ?? ""}>
+              <option value="">All assignees</option>
+              <option value="null">Unassigned</option>
+              {users.map((u) => (
+                <option key={u.id} value={u.id}>
+                  {u.email} ({u.role})
+                </option>
+              ))}
+            </Select>
+          )}
+
+          <Button type="submit" variant="primary">
+            Filter
+          </Button>
+        </div>
       </form>
-      <h1>Tickets</h1>
-      <p><Link href="/app/tickets/new">Create ticket</Link></p>
 
-      <p>
-        Page {page} of {totalPages} ({total} tickets)
-      </p>
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-gray-600">
+          Page {page} of {totalPages} ({total} tickets)
+        </p>
+        <div className="flex gap-2">
+          {page > 1 && (
+            <Link
+              href={`/app/tickets?status=${sp.status ?? ""}&priority=${sp.priority ?? ""}&assignedToId=${sp.assignedToId ?? ""}&q=${sp.q ?? ""}&page=${page - 1}`}
+              className="rounded-md border border-gray-300 px-3 py-1 text-sm hover:bg-gray-50 transition-colors"
+            >
+              ← Previous
+            </Link>
+          )}
+          {page < totalPages && (
+            <Link
+              href={`/app/tickets?status=${sp.status ?? ""}&priority=${sp.priority ?? ""}&assignedToId=${sp.assignedToId ?? ""}&q=${sp.q ?? ""}&page=${page + 1}`}
+              className="rounded-md border border-gray-300 px-3 py-1 text-sm hover:bg-gray-50 transition-colors"
+            >
+              Next →
+            </Link>
+          )}
+        </div>
+      </div>
 
-      {page > 1 && (
-        <Link href={`/app/tickets?status=${sp.status ?? ""}&priority=${sp.priority ?? ""}&assignedToId=${sp.assignedToId ?? ""}&q=${sp.q ?? ""}&page=${page - 1}`}>Previous</Link>
-      )}
-      {page > 1 && page < totalPages && " | "}
-      {page < totalPages && (
-        <Link href={`/app/tickets?status=${sp.status ?? ""}&priority=${sp.priority ?? ""}&assignedToId=${sp.assignedToId ?? ""}&q=${sp.q ?? ""}&page=${page + 1}`}>Next</Link>
-      )}
-
-      <table style={{ width: "100%", marginTop: 12 }}>
-        <thead>
-          <tr>
-            <th align="left">Title</th>
-            <th align="left">Status</th>
-            <th align="left">Priority</th>
-            <th align="left">Owner</th>
-            <th align="left">Assigned To</th>
-          </tr>
-        </thead>
-        <tbody>
-          {tickets.map(t => (
-            <tr key={t.id}>
-              <td><Link href={`/app/tickets/${t.id}`}>{t.title}</Link></td>
-              <td>{t.status}</td>
-              <td>{t.priority}</td>
-              <td>{t.owner.email}</td>
-              <td>{t.assignedTo?.email ?? "-"}</td>
+      <div className="overflow-x-auto rounded-lg border border-gray-200">
+        <table className="w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-700">Title</th>
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-700">Status</th>
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-700">Priority</th>
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-700">Owner</th>
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-700">Assigned To</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="divide-y divide-gray-200 bg-white">
+            {tickets.map((t) => (
+              <tr key={t.id} className="hover:bg-gray-50 transition-colors">
+                <td className="whitespace-nowrap px-6 py-4 text-sm">
+                  <Link href={`/app/tickets/${t.id}`} className="font-medium text-blue-600 hover:text-blue-900">
+                    {t.title}
+                  </Link>
+                </td>
+                <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900">{t.status}</td>
+                <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900">{t.priority}</td>
+                <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900">{t.owner.email}</td>
+                <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900">{t.assignedTo?.email ?? "-"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
