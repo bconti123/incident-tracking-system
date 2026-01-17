@@ -6,6 +6,7 @@ import { signIn } from "next-auth/react";
 import { Button } from "@/components/ui/Button";
 import { Form } from "@/components/ui/Form";
 import { FormField } from "@/components/ui/FormField";
+import { Container } from "@/components/ui/Container";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -51,7 +52,7 @@ export default function LoginPage() {
   const disabled = !email || !password || isSubmitting;
 
   return (
-    <div className="max-w-sm mx-auto pt-20">
+    <Container size="sm" className="pt-20">
       <Form
         title="Login"
         error={error}
@@ -91,6 +92,6 @@ export default function LoginPage() {
           Password: Password123!
         </p>
       </Form>
-    </div>
+    </Container>
   );
 }
