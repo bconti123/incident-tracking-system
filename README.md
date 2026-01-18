@@ -25,23 +25,27 @@
 
 **Ticket Dashboard**
 - Status and priority counts, unassigned and "assigned to me" views, and recent updated tickets
-<img width="1802" height="770" alt="Screenshot 2026-01-11 203803" src="https://github.com/user-attachments/assets/7cd3ac22-b84f-4466-8c9a-3d81b1717ce7" />
+<img width="1623" height="1235" alt="Dashboard" src="https://github.com/user-attachments/assets/6f3b829e-8f7e-42b7-88fe-d54ff692712e" />
 
 **Ticket List**
 - Search, filters, pagination, and role-aware visibility
-<img width="1751" height="617" alt="Screenshot 2026-01-11 202311" src="https://github.com/user-attachments/assets/aa99e4a5-7e60-48a8-841b-707e12bd6caa" />
-
-**Ticket Timeline**
-- Comments, status history, and audit events in a unified timeline
-<img width="1640" height="753" alt="Screenshot 2026-01-11 202539" src="https://github.com/user-attachments/assets/2214236d-8570-43c4-bc6c-ff68f2c1cad7" />
-
-**Error Code Classification**
-- Link error codes with notes and suggested remendations
-<img width="502" height="262" alt="Screenshot 2026-01-11 202723" src="https://github.com/user-attachments/assets/d6f3db0a-978e-4809-b552-5f304b5e97c9" />
+<img width="1293" height="931" alt="TicketList" src="https://github.com/user-attachments/assets/e830fd65-6d49-4f7e-9d79-29373c04d894" />
 
 **Ticket Detail** (Admin / Support Control)
 - Status, priority, and assignment management with RBAC enforcement
-<img width="566" height="572" alt="Screenshot 2026-01-11 202747" src="https://github.com/user-attachments/assets/c0ee1949-6272-47c4-81b3-b493f77483c4" />
+  
+**Ticket Timeline**
+- Comments, status history, and audit events in a unified timeline
+  
+<img width="1366" height="878" alt="TicketTimeLine+Detail" src="https://github.com/user-attachments/assets/195e0d8a-f442-438b-ac86-b13c079da066" />
+
+
+**Error Code Classification**
+- Link error codes with notes and suggested remendations
+<img width="738" height="875" alt="Error+Comment" src="https://github.com/user-attachments/assets/ee1be56e-2794-4047-8bed-5b8a124586fe" />
+
+
+
 
 
 
