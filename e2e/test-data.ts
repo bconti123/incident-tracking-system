@@ -19,4 +19,5 @@ export const credentials = {
 export const seededTickets = {
   userVisible: "Dark mode toggle not persisting",
   adminOnly: "RBAC permissions not enforced for admin panel",
+  supportVisibleUnassigned: "Update documentation for API v2",
 } as const;
