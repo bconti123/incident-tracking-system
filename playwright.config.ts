@@ -1,6 +1,20 @@
 import { defineConfig, devices } from "@playwright/test";
 
 const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? "http://127.0.0.1:3000";
+const databaseURL =
+  process.env.PLAYWRIGHT_DATABASE_URL ?? process.env.DATABASE_URL;
+const webServerEnv: Record<string, string> = {
+  ...Object.fromEntries(
+    Object.entries(process.env).filter(
+      (entry): entry is [string, string] => typeof entry[1] === "string",
+    ),
+  ),
+  NEXTAUTH_URL: baseURL,
+};
+
+if (databaseURL) {
+  webServerEnv.DATABASE_URL = databaseURL;
+}
 
 export default defineConfig({
   testDir: "./e2e",
@@ -28,12 +42,7 @@ export default defineConfig({
   ],
   webServer: {
     command: "npm run dev",
-    env: {
-      ...process.env,
-      NEXTAUTH_URL: baseURL,
-      DATABASE_URL:
-        process.env.PLAYWRIGHT_DATABASE_URL ?? process.env.DATABASE_URL,
-    },
+    env: webServerEnv,
     url: baseURL,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
