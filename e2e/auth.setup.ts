@@ -1,5 +1,6 @@
 import { mkdirSync } from "fs";
 import path from "path";
+import type { Browser } from "@playwright/test";
 import { expect, test as setup } from "@playwright/test";
 import { credentials } from "./test-data";
 
@@ -8,7 +9,7 @@ const authDir = path.resolve(__dirname, ".auth");
 setup.setTimeout(60_000);
 
 async function loginAndSaveState(
-  browser: Parameters<Parameters<typeof setup>[1]>[0]["browser"],
+  browser: Browser,
   email: string,
   password: string,
   storageStatePath: string,
