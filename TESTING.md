@@ -19,6 +19,9 @@ npm run test:watch
 
 # Run tests with coverage report
 npm run test:coverage
+
+# Run Playwright E2E tests
+npm run test:e2e
 ```
 
 ## Test Structure
@@ -106,6 +109,40 @@ it('should call signOut when button is clicked', () => {
 - Testing component rendering
 - Testing user interactions
 - Testing component state changes
+
+### 5. End-to-End Tests (e2e/*.spec.ts)
+
+Playwright is configured for browser-level testing against the running Next.js app.
+
+Current coverage includes:
+- Login success and failure flows
+- RBAC ticket visibility for the seeded `USER` account
+- Admin ticket creation and ticket update flow
+
+Runbook:
+
+```bash
+# Install Playwright once
+npm install
+npx playwright install chromium
+
+# Point Playwright at a non-production database if your default DATABASE_URL
+# uses SSL or a hosted instance
+export PLAYWRIGHT_DATABASE_URL="postgresql://incident_user:securepassword@127.0.0.1:5433/incident_tracking?schema=public&sslmode=disable"
+
+# Start your database and seed deterministic test data
+docker compose up -d
+DATABASE_URL="$PLAYWRIGHT_DATABASE_URL" npm run seed
+
+# Run the suite
+npm run test:e2e
+```
+
+Notes:
+- The E2E specs assume the seeded credentials from `prisma/seed.ts`
+- `PLAYWRIGHT_DATABASE_URL` overrides `DATABASE_URL` for the Next.js server started by Playwright
+- The suite creates unique ticket titles for mutation tests to avoid collisions
+- The config reuses an existing dev server locally or starts one automatically on port 3000
 
 ## Mocking
 

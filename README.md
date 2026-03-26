@@ -92,4 +92,4 @@ Seed users (example):
 - Improve the UI and expand feature coverage
 - Dockerize the application for consistent local and deployment environments
 - Add a CI/CD pipeline for automated testing and deployments
-- Add end-to-end (E2E) tests for critical user flows once the UI stabilizes
+- Expand the Playwright E2E suite for comments, filters, and timeline coverage
