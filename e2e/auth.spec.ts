@@ -1,6 +1,8 @@
 import { expect, test } from "@playwright/test";
 import { credentials } from "./test-data";
 
+const appUrlPattern = /\/app(?:\/)?(?:\?.*)?$/;
+
 test("shows an error for invalid credentials", async ({ page }) => {
   await page.goto("/login");
 
@@ -17,9 +19,12 @@ test("logs in with seeded credentials", async ({ page }) => {
 
   await page.locator('input[name="email"]').fill(credentials.support.email);
   await page.locator('input[name="password"]').fill(credentials.support.password);
-  await page.getByRole("button", { name: "Sign in" }).click();
+  await Promise.all([
+    page.waitForURL(appUrlPattern, { waitUntil: "domcontentloaded" }),
+    page.getByRole("button", { name: "Sign in" }).click(),
+  ]);
 
-  await page.waitForURL("**/app");
+  await expect(page).toHaveURL(appUrlPattern);
   await expect(page.getByRole("heading", { name: /welcome support/i })).toBeVisible();
   await expect(page.getByText(/support@test\.com/i)).toBeVisible();
 });
