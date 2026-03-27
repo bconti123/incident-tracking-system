@@ -15,7 +15,7 @@
 /playwright-report
 /test-results
 /e2e/.auth
-__tests__
+/__tests__
 
 # next.js
 /.next/
