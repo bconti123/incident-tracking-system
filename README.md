@@ -41,15 +41,8 @@
 
 
 **Error Code Classification**
-- Link error codes with notes and suggested remendations
+- Link error codes with notes and suggested recommendations
 <img width="738" height="875" alt="Error+Comment" src="https://github.com/user-attachments/assets/ee1be56e-2794-4047-8bed-5b8a124586fe" />
-
-
-
-
-
-
-
 
 ### Tech Stack
 
@@ -58,8 +51,10 @@
 - Prisma + PostgreSQL
 - Zod validation
 - Docker (Postgres)
+- Jest + React Testing Library
+- Playwright E2E
 
-### Roles and Permissions (table)
+### Roles and Permissions
 
 - **ADMIN**: manage everything
 - **SUPPORT**: view all tickets, update status/priority/assignee
@@ -75,11 +70,25 @@
 
 ### Getting started
 
+#### Prerequisites
+
+- Node.js
+- Docker
+- Docker Compose
+
+#### Environment setup
+
+```bash
+cp .example_env .env
+```
+
+#### Local setup
+
 ```bash
 npm install
 docker compose up -d
-npm run prisma:migrate
-npm run prisma:seed
+npx prisma migrate deploy
+npm run seed
 npm run dev
 ```
 Seed users (example):
@@ -87,9 +96,19 @@ Seed users (example):
 - support@test.com / Password123!
 - user@test.com / Password123!
 
+### Testing
+
+The project includes both unit/integration coverage with Jest and end-to-end coverage with Playwright.
+
+```bash.
+npm test
+```
+
+For full Jest and Playwright setup, runbook, and E2E coverage details, see [`TESTING.md`](TESTING.md).
+
 ### Next steps
 
 - Improve the UI and expand feature coverage
 - Dockerize the application for consistent local and deployment environments
 - Add a CI/CD pipeline for automated testing and deployments
-- Expand the Playwright E2E suite for comments, filters, and timeline coverage
+- Expand the Playwright E2E suite for timeline and broader regression coverage

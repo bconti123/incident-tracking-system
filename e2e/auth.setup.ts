@@ -11,15 +11,12 @@ const appUrlPattern = /\/app(?:\/)?(?:\?.*)?$/;
 setup.setTimeout(120_000);
 
 function prepareDatabase() {
-  const databaseUrl =
-    process.env.PLAYWRIGHT_DATABASE_URL ?? process.env.DATABASE_URL;
 
   try {
     execFileSync("npm", ["run", "migrate:deploy"], {
       stdio: "inherit",
       env: {
         ...process.env,
-        ...(databaseUrl ? { DATABASE_URL: databaseUrl } : {}),
       },
     });
 
@@ -27,14 +24,12 @@ function prepareDatabase() {
       stdio: "inherit",
       env: {
         ...process.env,
-        ...(databaseUrl ? { DATABASE_URL: databaseUrl } : {}),
       },
     });
   } catch {
     throw new Error(
       "Unable to prepare the Playwright database. Start the test database first, " +
-        'for example with `docker compose up -d`, and ensure DATABASE_URL or ' +
-        "PLAYWRIGHT_DATABASE_URL points to it. The setup now expects migrations " +
+        "for example with `docker compose up -d`, and ensure `DATABASE_URL` is set " +
         "and seed data to run successfully before logging in.",
     );
   }
