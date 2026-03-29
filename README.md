@@ -73,8 +73,10 @@
 #### Prerequisites
 
 - Node.js
-- Docker
-- Docker Compose
+- PostgreSQL
+- If you use Docker, you'll need:
+    - Docker
+    - Docker Compose
 
 #### Environment setup
 
@@ -82,11 +84,24 @@
 cp .example_env .env
 ```
 
-#### Local setup
+#### Local setup (with Docker)
 
 ```bash
 npm install
 docker compose up -d
+npx prisma migrate deploy
+npm run seed
+npm run dev
+```
+Seed users (example):
+- admin@test.com / Password123!
+- support@test.com / Password123!
+- user@test.com / Password123!
+
+#### Local setup (without Docker)
+
+```bash
+npm install
 npx prisma migrate deploy
 npm run seed
 npm run dev

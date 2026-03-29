@@ -2,3 +2,6 @@ NEXTAUTH_SECRET="SOMESTRINGS"
 # NEXTAUTH_URL="http://localhost:3000"
 # Default local Docker Postgres connection from docker-compose.yml
 DATABASE_URL="postgresql://incident_user:securepassword@localhost:5433/incident_tracking?schema=public&sslmode=disable"
+
+# Local Postgres connection
+# DATABASE_URL="postgresql://username:password@localhost:5432/incident_tracking"
