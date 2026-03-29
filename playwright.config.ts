@@ -1,8 +1,6 @@
 import { defineConfig, devices } from "@playwright/test";
 
 const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? "http://127.0.0.1:3000";
-const databaseURL =
-  process.env.DATABASE_URL;
 const webServerEnv: Record<string, string> = {
   ...Object.fromEntries(
     Object.entries(process.env).filter(
@@ -11,10 +9,6 @@ const webServerEnv: Record<string, string> = {
   ),
   NEXTAUTH_URL: baseURL,
 };
-
-if (databaseURL) {
-  webServerEnv.DATABASE_URL = databaseURL;
-}
 
 export default defineConfig({
   testDir: "./e2e",
