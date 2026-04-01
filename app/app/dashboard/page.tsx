@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Prisma } from "@/app/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/guards";
 import { canViewAllTickets } from "@/lib/rbac";
@@ -9,7 +10,7 @@ export default async function DashboardPage() {
   const user = await requireUser();
   const viewAll = canViewAllTickets(user.role);
 
-  const baseWhere: any = {};
+  const baseWhere: Prisma.TicketWhereInput = {};
   if (!viewAll) baseWhere.ownerId = user.id;
 
   const [

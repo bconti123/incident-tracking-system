@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Prisma, Priority, TicketStatus } from "@/app/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/guards";
 import { canViewAllTickets } from "@/lib/rbac";
@@ -7,26 +8,34 @@ import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { Button } from "@/components/ui/Button";
 
-export default async function TicketsPage({ searchParams, } :
-  { searchParams? : {
+type TicketsPageSearchParams = {
     q?: string;
     status?: string;
     priority?: string;
     assignedToId?: string;
     page?: string;
-  }}
- ) {
-  const sp = await searchParams ?? {};
+  };
+
+export default async function TicketsPage({
+  searchParams,
+}: {
+  searchParams?: Promise<TicketsPageSearchParams>;
+}) {
+  const sp = (await searchParams) ?? {};
   const user = await requireUser();
 
-  const where: any = {};
+  const where: Prisma.TicketWhereInput = {};
 
   if (!canViewAllTickets(user.role)) {
     where.ownerId = user.id;
   }
 
-  if (sp?.status) where.status = sp.status;
-  if (sp?.priority) where.priority = sp.priority;
+  if (sp.status && Object.values(TicketStatus).includes(sp.status as TicketStatus)) {
+    where.status = sp.status as TicketStatus;
+  }
+  if (sp.priority && Object.values(Priority).includes(sp.priority as Priority)) {
+    where.priority = sp.priority as Priority;
+  }
   if (sp?.assignedToId) {
     if (sp.assignedToId === "null") {
       where.assignedToId = null;       // ✅ unassigned only
@@ -61,12 +70,6 @@ export default async function TicketsPage({ searchParams, } :
 
   const canEdit = user.role === "ADMIN" || user.role === "SUPPORT";
   const users = canEdit ? await listAssignableUsers() : [];
-
-  const errorCodes = canEdit ? await prisma.errorCode.findMany({
-    orderBy: { code: "asc" },
-    select: { id: true, code: true, label: true },
-  }) : [];
-  
 
   return (
     <div className="space-y-6">

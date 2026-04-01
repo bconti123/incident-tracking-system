@@ -6,7 +6,7 @@ import { canUpdateTicket } from "@/lib/rbac";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { Prisma } from "@prisma/client";
+import { Prisma } from "@/app/generated/prisma/client";
 
 const AddErrorRefSchema = z.object({
   ticketId: z.string().min(1),
@@ -30,7 +30,7 @@ export async function addErrorRefAction(formData: FormData) {
   });
   if (!parsed.success) throw new Error("Invalid input");
 
-  await prisma.$transaction(async (tx) => {
+  await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
     const ref = await tx.ticketErrorRef.create({
       data: {
         ticketId: parsed.data.ticketId,
@@ -72,7 +72,7 @@ export async function removeErrorRefAction(formData: FormData) {
   });
   if (!parsed.success) throw new Error("Invalid input");
 
-  await prisma.$transaction(async (tx) => {
+  await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
     const before = await tx.ticketErrorRef.findUnique({
       where: { id: parsed.data.errorRefId },
       include: { errorCode: true },

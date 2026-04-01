@@ -6,7 +6,7 @@ import { requireUser } from "@/lib/guards";
 import { canCreateTicket, canUpdateTicket, canViewAllTickets } from "@/lib/rbac";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { Prisma } from "@prisma/client";
+import { Prisma } from "@/app/generated/prisma/client";
 
 const CreateTicketSchema = z.object({
   title: z.string().min(3).max(120),
@@ -26,7 +26,7 @@ export const createTicketAction = async (formData: FormData) => {
   });
   if (!parsed.success) throw new Error("Invalid input");
 
-  const ticket = await prisma.$transaction(async (tx) => {
+  const ticket = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
     const ticket = await tx.ticket.create({
       data: {
         title: parsed.data.title,
@@ -115,7 +115,7 @@ export const updateTicketAction = async (formData: FormData) => {
     nextAssignedToId !== undefined && nextAssignedToId !== before.assignedToId;
   const priorityChanged = nextPriority !== undefined && nextPriority !== before.priority;
 
-  await prisma.$transaction(async (tx) => {
+  await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
     const updated = await tx.ticket.update({
       where: { id: before.id },
       data: {
@@ -281,4 +281,3 @@ export const listAssignableUsers = async () => {
     select: { id: true, email: true, role: true },
   });
 }
-
