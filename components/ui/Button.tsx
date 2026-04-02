@@ -31,6 +31,7 @@ export const Button = ({
 
   return (
     <button
+      type={type}
       {...props}
       className={`${base} ${VARIANTS[variant]} ${SIZES[size]} ${className}`.trim()}
     >

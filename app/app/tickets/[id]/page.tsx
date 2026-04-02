@@ -2,7 +2,7 @@ import Link from "next/link";
 import { getTicketForCurrentUser, listAssignableUsers } from "../actions";
 import TicketAdminForm from "./TicketAdminForm";
 import { addCommentAction } from "./comments.actions";
-import CommentItem from "./CommentItem";
+import CommentItem, { type CommentWithAuthor } from "./CommentItem";
 import { getTicketTimeline } from "./timeline.actions";
 import Timeline from "./Timeline";
 import { prisma } from "@/lib/prisma";
@@ -105,10 +105,10 @@ export default async function TicketDetailPage({
             </form>
 
             <div className="space-y-4 border-t border-gray-200 pt-4">
-              {ticket.comments.map((c: any) => (
+              {ticket.comments.map((c) => (
                 <CommentItem
                   key={c.id}
-                  comment={c}
+                  comment={c as CommentWithAuthor}
                   currentUserId={user.id}
                   currentUserRole={user.role}
                 />
@@ -141,4 +141,3 @@ export default async function TicketDetailPage({
     </div>
   );
 }
-

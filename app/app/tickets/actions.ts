@@ -7,6 +7,7 @@ import { canCreateTicket, canUpdateTicket, canViewAllTickets } from "@/lib/rbac"
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { Prisma } from "@/app/generated/prisma/client";
+import type { Priority, TicketStatus } from "@/app/generated/prisma/enums";
 
 const CreateTicketSchema = z.object({
   title: z.string().min(3).max(120),
@@ -119,9 +120,9 @@ export const updateTicketAction = async (formData: FormData) => {
     const updated = await tx.ticket.update({
       where: { id: before.id },
       data: {
-        ...(nextStatus ? { status: nextStatus as any } : {}),
+        ...(nextStatus ? { status: nextStatus as TicketStatus } : {}),
         ...(nextAssignedToId !== undefined ? { assignedToId: nextAssignedToId } : {}),
-        ...(nextPriority ? { priority: nextPriority as any } : {}),
+        ...(nextPriority ? { priority: nextPriority as Priority } : {}),
       },
       select: {
         id: true,

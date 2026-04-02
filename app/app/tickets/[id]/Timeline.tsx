@@ -10,18 +10,23 @@ export default function Timeline({ items }: { items: TimelineItem[] }) {
     );
   }
 
-  let lastDay: string | null = null;
+  const dayHeaderByItem = items.map((item, index) => {
+    const dayKey = dayLabel(item.createdAt);
+    const previousDayKey = index > 0 ? dayLabel(items[index - 1].createdAt) : null;
+
+    return {
+      item,
+      dayKey,
+      showDayHeader: dayKey !== previousDayKey,
+    };
+  });
 
   return (
     <div className="space-y-4">
       <h3 className="text-lg font-semibold text-gray-900">Timeline</h3>
 
       <ul className="space-y-3">
-        {items.map((item) => {
-          const dayKey = dayLabel(item.createdAt);
-          const showDayHeader = dayKey !== lastDay;
-          lastDay = dayKey;
-
+        {dayHeaderByItem.map(({ item, dayKey, showDayHeader }) => {
           return (
             <li key={`${item.type}-${item.id}`}>
               {showDayHeader && (

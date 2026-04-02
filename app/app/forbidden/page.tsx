@@ -6,7 +6,7 @@ export default function Forbidden() {
       <div className="space-y-2">
         <h1 className="text-4xl font-bold text-gray-900">403</h1>
         <h2 className="text-2xl font-semibold text-gray-700">Forbidden</h2>
-        <p className="text-gray-600">You don't have access to that page.</p>
+        <p className="text-gray-600">You don&apos;t have access to that page.</p>
       </div>
       <Link
         href="/app"

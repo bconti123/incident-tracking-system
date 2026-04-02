@@ -5,12 +5,24 @@ import { deleteCommentAction, editCommentAction } from "./comments.actions";
 import { Textarea } from "@/components/ui/Textarea";
 import { Button } from "@/components/ui/Button";
 
+export type CommentWithAuthor = {
+  id: string;
+  authorId: string;
+  body: string;
+  isDeleted: boolean;
+  createdAt: Date;
+  editedAt: Date | null;
+  author: {
+    email: string;
+  };
+};
+
 export default function CommentItem({
   comment,
   currentUserId,
   currentUserRole,
 }: {
-  comment: any;
+  comment: CommentWithAuthor;
   currentUserId: string;
   currentUserRole: "ADMIN" | "SUPPORT" | "USER";
 }) {
